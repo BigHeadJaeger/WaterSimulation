@@ -41,4 +41,45 @@ public:
 	float WeightFun(float dis);
 	//MPS中密度的计算
 	float DensityN(vector<vec3> r, int currentIndex);
+	float Lambda(vector<vec3> r, int currentIndex);
 };
+
+template<typename T>
+inline T MPSToolFun::ExplicitDivergence(vector<T> phi, vector<vec3> r, int currentIndex)
+{
+	T res = T();
+	for (int i = 0; i < phi.size(); i++)
+	{
+		if (i != currentIndex)
+		{
+			res += ((phi[i] - phi[currentIndex]) * (r[i] - r[currentIndex]) / pow(distance(r[i], r[currentIndex]), 2))
+				* WeightFun(distance(r[i], r[currentIndex]));
+		}
+	}
+	res *= (Ds / n0);
+	return res;
+}
+
+template<typename T>
+inline T MPSToolFun::ExplicitLaplacian(vector<T> phi, vector<vec3> r, int currentIndex)
+{
+	T res = T();
+	for (int i = 0; i < phi.size(); i++)
+	{
+		if (i != currentIndex)
+		{
+			res += (phi[i] - phi[currentIndex]) * WeightFun(distance(r[i], r[currentIndex]));
+		}
+	}
+
+	float lambda = Lambda(r, currentIndex);
+
+	res *= (2 * Ds / n0 * lambda);
+	return res;
+}
+
+template<typename T>
+inline T MPSToolFun::ExplicitGradient(vector<T> phi, vector<vec3> r, int currentIndex)
+{
+	return T();
+}
