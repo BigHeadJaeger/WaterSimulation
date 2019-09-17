@@ -1,8 +1,5 @@
 #pragma once
-#include<glm.hpp>
-#include<vector>
-using namespace std;
-using namespace glm;
+#include"MPSFun.h"
 
 class Particle
 {
@@ -12,6 +9,7 @@ public:
 	float pressure;			//受到的压力
 	float life;				//生命时长
 	float size;				//球形时指半径
+	float n0;				//初始的密度值
 
 	int index;				//记录自身的索引值
 	vector<int> adjoinParticleIndex;			//记录邻接粒子的索引
@@ -35,6 +33,8 @@ public:
 		size = _size;
 		index = -1;
 	}
+
+	void SetInitialN0(vector<vec3> r, int currentIndex);
 
 	void UpdateAdjoin(vector<Particle>& particles, float range);
 };

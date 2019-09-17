@@ -18,6 +18,16 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Const.h" />
+    <ClInclude Include="MPSFun.h" />
+    <ClInclude Include="Particle.h" />
+    <ClInclude Include="PublicStruct.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MPSFun.cpp" />
+    <ClCompile Include="Particle.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{037AA270-619F-44ED-83AD-BDF65D785841}</ProjectGuid>
@@ -70,8 +80,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\MyProgram\ComputerGraphics\Render\WaterSimulation\WaterSimulation\Lib\64\include;E:\MyProgram\ComputerGraphics\Render\WaterSimulation\WaterSimulation\Lib\64\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\MyProgram\ComputerGraphics\Render\WaterSimulation\WaterSimulation\Lib\64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\MyProgram\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\include;D:\MyProgram\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\MyProgram\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,9 +136,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="源.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

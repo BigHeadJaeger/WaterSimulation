@@ -9,9 +9,10 @@ class MPSToolFun
 private:
 	static MPSToolFun* mpsTool;
 
-	float n0;			//初始的密度值
+
 	float Ds;			//维数
-	float re;			//邻接点的范围
+	float reForDG;			//计算密度和梯度的re
+	float reForL;			//计算拉普拉斯的re
 	MPSToolFun()
 	{
 
@@ -26,7 +27,11 @@ public:
 	}
 
 	//void SetN0()
-
+	void SetRe(float l0)
+	{
+		reForDG = 2.1 * l0;
+		reForL = 3.1 * l0;
+	}
 
 	//显式散度
 	template<typename T>
@@ -38,7 +43,7 @@ public:
 	template<typename T>
 	T ExplicitGradient(vector<T> phi, vector<vec3> r, int currentIndex);
 	//计算权重的方程
-	float WeightFun(float dis);
+	float WeightFun(float dis, float re);
 	//MPS中密度的计算
 	float DensityN(vector<vec3> r, int currentIndex);
 	float Lambda(vector<vec3> r, int currentIndex);
@@ -53,7 +58,7 @@ inline T MPSToolFun::ExplicitDivergence(vector<T> phi, vector<vec3> r, int curre
 		if (i != currentIndex)
 		{
 			res += ((phi[i] - phi[currentIndex]) * (r[i] - r[currentIndex]) / pow(distance(r[i], r[currentIndex]), 2))
-				* WeightFun(distance(r[i], r[currentIndex]));
+				* WeightFun(distance(r[i], r[currentIndex]), reForDG);
 		}
 	}
 	res *= (Ds / n0);
@@ -68,7 +73,7 @@ inline T MPSToolFun::ExplicitLaplacian(vector<T> phi, vector<vec3> r, int curren
 	{
 		if (i != currentIndex)
 		{
-			res += (phi[i] - phi[currentIndex]) * WeightFun(distance(r[i], r[currentIndex]));
+			res += (phi[i] - phi[currentIndex]) * WeightFun(distance(r[i], r[currentIndex]), reForL);
 		}
 	}
 
