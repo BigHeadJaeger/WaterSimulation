@@ -3,7 +3,7 @@
 void Particle::SetInitialN0(vector<vec3> r, int currentIndex)
 {
 	MPSToolFun* tool = MPSToolFun::GetMPSTool();
-	tool->DensityN(r, currentIndex);
+	n0 = tool->DensityN(r, currentIndex);
 }
 
 void Particle::UpdateAdjoin(vector<Particle>& particles, float range)
