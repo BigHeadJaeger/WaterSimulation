@@ -40,5 +40,5 @@ public:
 
 	void UpdateAdjoin(vector<Particle>& particles, float range);
 
-
+	void SurfaceAdjudge(float a, float tho, float g, float l0);
 };

@@ -19,3 +19,11 @@ void Particle::UpdateAdjoin(vector<Particle>& particles, float range)
 		}
 	}
 }
+
+void Particle::SurfaceAdjudge(float a, float tho, float g, float l0)
+{
+	if (pressure < (a * tho * g * l0))
+		isSurface = true;
+	else
+		isSurface = false;
+}

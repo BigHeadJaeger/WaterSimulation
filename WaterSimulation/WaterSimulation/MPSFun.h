@@ -4,6 +4,8 @@
 using namespace glm;
 using namespace std;
 
+#include"Const.h"
+
 class MPSToolFun
 {
 private:
@@ -14,7 +16,6 @@ private:
 	float reForDG;			//计算密度和梯度的re
 	float reForL;			//计算拉普拉斯的re
 	float viscosity;		//粘度系数
-	float g;				//重力加速度
 	float gama;				//
 	MPSToolFun()
 	{
@@ -22,7 +23,6 @@ private:
 		reForDG = 0;
 		reForL = 0;
 		viscosity = 0;
-		g = 9.8;
 		gama = 0.01;
 	}
 
