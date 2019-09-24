@@ -26,7 +26,7 @@ private:
 		gama = 0.01;
 	}
 
-private:
+public:
 	//内部私有计算函数
 	//Lambda函数
 	float Lambda(vector<vec3> r, int currentIndex);
@@ -36,6 +36,7 @@ private:
 	vec3 TempU(float deltaT, vec3 resLU, vec3 uNow);
 	//计算隐式拉普拉斯的右端项(初始密度，u*的散度，时间差，n0，n*)
 	vec3 ImplicitLaplacianRight(float rho0, vec3 resDu, float deltaT, float n0, float tempN);
+	float OldImplicitLaplacianRight(float rho0, float deltaT, float n0, float tempN);
 public:
 	//外部接口
 	static MPSToolFun* GetMPSTool()

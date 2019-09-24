@@ -43,11 +43,24 @@ int main()
 	/*************每一帧的流程****************/
 	float deltaT = 1 / 60;
 	//每一帧的主要算法流程遍历每一个粒子
+
+	//1.计算每个粒子的p，需要隐式求解方程组
+	//1.1计算每个粒子的右端项
+	// u*的散度
+	// u的拉普拉斯结果
+	// u*的计算
+	// n*的计算
+	vector<float> Right;		//存储每一个粒子的右端项
 	for (int i = 0; i < particles.size(); i++)
 	{
-		
+		vector<vec3> neighborPos;
+		vector<vec3> neighborU;
+		neighborPos.push_back(particles[i].position);
+		neighborU.push_back(particles[i].speed);
+		vec3 tempU = mpsTool->TempU(deltaT, mpsTool->ExplicitLaplacian(neighborU, neighborPos, i, particles[i].n0), particles[i].position);
+		Right.push_back(mpsTool->OldImplicitLaplacianRight(particles[i].n0, deltaT, particles[i].n0, mpsTool->DensityN(neighborPos, i)));
 	}
-
+	//1.2 计算隐式的P，解一个泊松方程
 
 
 }

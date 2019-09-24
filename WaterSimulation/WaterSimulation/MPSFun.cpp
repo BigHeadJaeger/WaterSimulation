@@ -23,6 +23,11 @@ vec3 MPSToolFun::ImplicitLaplacianRight(float rho0, vec3 resDu, float deltaT, fl
 	return (1 - gama) * rho0 * (resDu / deltaT) - gama * (rho0 / pow(deltaT, 2)) * ((tempN - n0) / n0);
 }
 
+float MPSToolFun::OldImplicitLaplacianRight(float rho0, float deltaT, float n0, float tempN)
+{
+	return (rho0 / pow(deltaT, 2)) * ((n0 - tempN) / n0);
+}
+
 float MPSToolFun::DensityN(vector<vec3> r, int currentIndex)
 {
 	float res = 0;
@@ -50,8 +55,8 @@ float MPSToolFun::Lambda(vector<vec3> r, int currentIndex)
 	{
 		if (i != currentIndex)
 		{
-			numerator += pow(distance(r[i], r[currentIndex]), 2) * WeightFun(distance(r[i], r[currentIndex]));
-			denominator += WeightFun(distance(r[i], r[currentIndex]));
+			numerator += pow(distance(r[i], r[currentIndex]), 2) * WeightFun(distance(r[i], r[currentIndex]), reForL);
+			denominator += WeightFun(distance(r[i], r[currentIndex]), reForL);
 		}
 	}
 	result = numerator / denominator;
