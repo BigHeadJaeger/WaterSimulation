@@ -27,6 +27,9 @@
     <ClInclude Include="MPSFun.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleGroup.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Particle.cpp">

@@ -22,6 +22,7 @@
     <ClInclude Include="Const.h" />
     <ClInclude Include="MPSFun.h" />
     <ClInclude Include="Particle.h" />
+    <ClInclude Include="ParticleGroup.h" />
     <ClInclude Include="PublicStruct.h" />
   </ItemGroup>
   <ItemGroup>
