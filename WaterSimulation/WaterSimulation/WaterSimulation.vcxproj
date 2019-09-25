@@ -81,8 +81,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\MyProgram\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\include;D:\MyProgram\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\MyProgram\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\MyProgram\ComputerGraphics\Render\WaterSimulation\WaterSimulation\Lib\64\include;E:\MyProgram\ComputerGraphics\Render\WaterSimulation\WaterSimulation\Lib\64\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\MyProgram\ComputerGraphics\Render\WaterSimulation\WaterSimulation\Lib\64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
