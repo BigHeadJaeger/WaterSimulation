@@ -11,13 +11,10 @@ using namespace std;
 class ParticleGroup
 {
 protected:
-	RenderType renderType;		//当前粒子群的渲染方式
 	//Render render;			//每一个粒子群
 	int particleNumber;
 	vec3 centerPosition;		//粒子群的中心位置，暂时不需要
 public:
-	virtual void Update() = 0;	//抽象更新粒子状态的函数，不同的粒子群有不同的更新方式
-
 };
 
 //普通粒子群
@@ -43,7 +40,6 @@ private:
 public:
 	MPSWaterParticleGroup()
 	{
-		renderType = PARTICLE_BILL_BOARD;
 		particleNumber = 10;
 		l0 = 1;
 		range = 0.5;

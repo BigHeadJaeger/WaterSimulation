@@ -43,9 +43,5 @@ public:
 		index = -1;
 	}
 
-	//void SetInitialN0(vector<vec3> r, int currentIndex);
-
-	//void UpdateAdjoin(vector<Particle>& particles, float range);
-
 	void SurfaceAdjudge(float a, float tho, float g, float l0);
 };
