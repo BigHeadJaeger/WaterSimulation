@@ -28,6 +28,7 @@
   <ItemGroup>
     <ClCompile Include="MPSFun.cpp" />
     <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="ParticleGroup.cpp" />
     <ClCompile Include="TestMain.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
