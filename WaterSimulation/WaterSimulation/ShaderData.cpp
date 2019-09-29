@@ -34,7 +34,7 @@ void ShaderData::InitTexture(GLuint& texID, string texPath)
 	SOIL_free_image_data(pResult);
 }
 
-void ShaderData::InitVertexBuffer(MeshData& meshData)
+void ShaderData::InitVertexBuffer(vector<float>& vertexPos, vector<float>& vertexNormal, vector<float>& vertexTex, bool providedTex=false)
 {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
