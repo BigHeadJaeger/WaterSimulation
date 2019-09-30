@@ -2,7 +2,6 @@
 #pragma once
 #include<glm.hpp>
 #include<vector>
-#include"Camera.h"
 using namespace glm;
 
 class Transform

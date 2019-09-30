@@ -7,6 +7,13 @@ using namespace std;
 #include"Program.h"
 #include"ShaderData.h"
 
+enum RENDERERTYPE
+{
+	UE4RENDERER,
+	PHONGRENDERER,
+	MPSRENDERER,
+};
+
 class Renderer
 {
 protected:

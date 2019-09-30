@@ -1,6 +1,6 @@
 #include "ShaderData.h"
 
-void ShaderData::UpdateMatrix(Transform& t, Camera& camera)
+void ShaderData::UpdateMatrix(Transform& t)
 {
 	world = translate(mat4(1.0), t.position);
 	world = scale(world, t.scaler);
@@ -11,5 +11,5 @@ void ShaderData::UpdateMatrix(Transform& t, Camera& camera)
 	if (t.rotation.z != 0)
 		world = rotate(world, t.rotation.z, vec3(0.0, 0.0, 1.0));
 	worldInvTranspose = transpose(inverse(world));
-	worldViewProj = camera.pro * camera.view * world;
+	worldViewProj = mainCamera->pro * mainCamera->view * world;
 }

@@ -29,3 +29,5 @@ public:
 };
 
 //Camera* Camera::MainCamera = NULL;
+
+Camera* mainCamera = NULL;

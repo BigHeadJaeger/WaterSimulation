@@ -4,6 +4,7 @@
 #include"ShaderDataInitTool.h"
 #include"Transform.h"
 #include"PublicStruct.h"
+#include"Camera.h"
 using namespace std;
 
 
@@ -32,9 +33,9 @@ public:
 		drawType = GL_TRIANGLES;
 	}
 
-	void UpdateMatrix(Transform& t, Camera& camera);
+	void UpdateMatrix(Transform& t);
 	void InitVertexBuffer(vector<float>& vertexData, bool providedNormal, bool providedTex);
-	virtual void Temp();
+	virtual void Temp(){}
 };
 
 enum TEXTURETYPE
@@ -62,5 +63,5 @@ public:
 	GLuint tNormal;					//·¨ÏßÌùÍ¼
 	bool bNormal;
 public:
-	void SetTexture(TEXTURETYPE type, string texPath);
+	void InitTexture(TEXTURETYPE type, string texPath);
 };
