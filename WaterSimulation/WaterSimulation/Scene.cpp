@@ -7,7 +7,7 @@ void MyScene::Init()
 	//初始化glew
 	glewInit();
 	//初始化Renderer中的program
-	UE4Renderer::GetRenderer()->InitProgram("test.vert", "test.frag");
+	UE4Renderer::GetRenderer()->InitProgram("UE4ShaderFile.vert", "UE4ShaderFile.frag");
 
 	//pShadowTex.SetShader("shadowTex.v", "shadowTex.f");
 
