@@ -21,9 +21,7 @@ public:
 		}
 		return instance;
 	}
-	void SetVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float>& vertexPos);
-	void SetVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float>& vertexPos, vector<float>& vertexNormal);
-	void SetVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float>& vertexPos, vector<float>& vertexNormal, vector<float>& vertexTex);
+	void InitVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float>& vertexData, bool providedNormal, bool providedTex);
 
-	void SetTexture(GLuint& texID, string texPath);
+	void InitTextureWithFile(GLuint& texID, string texPath);
 };

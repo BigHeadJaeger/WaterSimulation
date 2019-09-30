@@ -27,18 +27,16 @@ void MyScene::Init()
 	
 
 	//指定物体PBR材质
-	MeshObject cow;
-	cow.SetName("cow");
-	cow.readObjFile("OBJ\\cow.obj");
-	cow.SetRenderer(UE4RENDERER);
-	cow.InitBufferData();
-	cow.GetTransform().SetPosition(vec3(0, 0, 0));
-	cow.GetTransform().SetScaler(vec3(3.0));
-	dynamic_cast<UE4ShaderData*>(cow.GetShaderData())->InitTexture(ALBEDO, "");
-	cow.InitVertexBuffer();
-	cow.InitBounding(BOX);
+	MeshObject* cow = new MeshObject();
+	cow->SetName("cow");
+	cow->readObjFile("OBJ\\cow.obj");
+	cow->SetRenderer(UE4RENDERER);
+	cow->InitBufferData();
+	cow->GetTransform().SetPosition(vec3(0, 0, 0));
+	cow->GetTransform().SetScaler(vec3(3.0));
+	dynamic_cast<UE4ShaderData*>(cow->GetShaderData())->InitTexture(ALBEDO, "");
 
-	objects.insert(pair<string, Object>(cow.GetName(), cow));
+	objects.insert(pair<string, Object*>(cow->GetName(), cow));
 
 
 	//myBox.InitDirectBox(1, 1, 1);					//顶点、索引信息初始化
@@ -71,16 +69,15 @@ void MyScene::Update()
 {
 
 	//计算视角矩阵
-	mainCamera.SetView();
+	mainCamera->SetView();
 	//计算投影矩阵
-	mainCamera.SetPro();
+	mainCamera->SetPro();
 
 	//遍历所有object更新矩阵
-	map<string, Object>::iterator objs_it;
+	map<string, Object*>::iterator objs_it;
 	for (objs_it = objects.begin(); objs_it != objects.end(); objs_it++)
 	{
-		(*objs_it).second.UpdateMatrix(mainCamera);
-		(*objs_it).second.UpdateBounding();
+		(*objs_it).second->Update();
 	}
 
 	//cow.UpdateMatrix(mainCamera);
@@ -124,12 +121,12 @@ void MyScene::Draw()
 	//glFrontFace(GL_CW);
 	//glCullFace(GL_FRONT);
 
-	glUseProgram(p1.p);						//启用着色器程序
+	//glUseProgram(p1.p);						//启用着色器程序
 
-	map<string, Object>::iterator objs_it;
+	map<string, Object*>::iterator objs_it;
 	for (objs_it = objects.begin(); objs_it != objects.end(); objs_it++)
 	{
-		(*objs_it).second.Draw(p1);
+		(*objs_it).second->Draw();
 	}
 
 }

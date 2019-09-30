@@ -12,7 +12,7 @@ class MyScene
 {
 private:
 	//各种场景信息（相机、材质、灯光、各种物体的各种矩阵）
-	map<string, Object> objects;
+	map<string, Object*> objects;
 	//MeshObject cow;
 	//灯光
 	vec3 lightPos;
@@ -33,6 +33,12 @@ public:
 	~MyScene()
 	{
 		delete mainCamera;
+		map<string, Object*>::iterator objs_it;
+		for (objs_it = objects.begin(); objs_it != objects.end(); objs_it++)
+		{
+			delete (*objs_it).second;
+		}
+		objects.clear();
 	}
 
 	void Init();			//初始化各种信息

@@ -45,6 +45,7 @@ void Renderer::SetUniform(string valueName, float value, ShaderProgram& p)
 
 void UE4Renderer::Render(ShaderData* shaderData)
 {
+	glUseProgram(shaderProgram.p);
 	//ShaderData* test = new UE4ShaderData();
 	UE4ShaderData* data = dynamic_cast<UE4ShaderData*>(shaderData);
 	if (data != NULL)

@@ -19,7 +19,7 @@ public:
 
 	//物体的VAO、VBO编号
 	GLuint VAO;
-	GLuint VertexBuffer;
+	GLuint VBO;
 	GLuint IndexBuffer;
 
 	GLint drawType;					//顶点buffer的绘制方式
