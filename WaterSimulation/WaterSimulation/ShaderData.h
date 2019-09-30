@@ -3,7 +3,6 @@
 
 #include"ShaderDataInitTool.h"
 #include"Transform.h"
-#include"Camera.h"
 #include"PublicStruct.h"
 using namespace std;
 
@@ -11,10 +10,7 @@ using namespace std;
 
 class ShaderData
 {
-private:
-
-
-protected:
+public:
 	//物体的坐标属性
 	mat4x4 world;					//世界矩阵
 	mat4x4 worldViewProj;			//最终坐标转换矩阵
@@ -25,18 +21,20 @@ protected:
 	GLuint VertexBuffer;
 	GLuint IndexBuffer;
 
-
+	GLint drawType;					//顶点buffer的绘制方式
+	GLint drawUnitNumber;			//绘制单元的数量
 public:
 	ShaderData()
 	{
 		world = mat4(0);
 		worldViewProj = mat4(0);
 		worldInvTranspose = mat4(0);
+		drawType = GL_TRIANGLES;
 	}
 
 	void UpdateMatrix(Transform& t, Camera& camera);
-			//生成纹理对象并绑定数据(将图片转化为纹理数据，根据不同的ID设置相应的纹理)
-	void InitVertexBuffer(vector<float>& vertexPos, vector<float>& vertexNormal, vector<float>& vertexTex, bool providedTex);
+	void InitVertexBuffer(vector<float>& vertexData, bool providedNormal, bool providedTex);
+	virtual void Temp();
 };
 
 enum TEXTURETYPE
@@ -50,7 +48,7 @@ enum TEXTURETYPE
 
 class UE4ShaderData :public ShaderData
 {
-protected:
+public:
 	//物体的贴图编号（不一定全都需要）
 	bool bUseTexture;
 	GLuint tAlbedo;					//反射贴图（基础颜色）
