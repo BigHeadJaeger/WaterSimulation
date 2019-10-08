@@ -27,7 +27,7 @@ public:
 	void SetRenderer(RENDERERTYPE type);			//设置渲染器并生成对应的shaderData
 
 	virtual void InitBufferData() = 0;
-	virtual void Update() = 0;
+	virtual void Update(float dt) = 0;
 	virtual void Draw() = 0;
 };
 
@@ -60,7 +60,7 @@ public:
 		GetVertexDataArray(data);
 		shaderData->InitVertexBuffer(data, true, false);
 	}
-	void Update()override;
+	void Update(float dt)override;
 	void Draw()override;
 };
 

@@ -4,11 +4,12 @@
 using namespace glm;
 using namespace std;
 
+#include"Object.h"
 #include"PublicStruct.h"
 #include"Particle.h"
 
 //粒子群的基类
-class ParticleGroup
+class ParticleGroup:public Object
 {
 protected:
 	//Render render;			//每一个粒子群
@@ -51,8 +52,5 @@ public:
 	void InitMPSTool();
 
 
-	void Update() override
-	{
-
-	}
+	void Update(float dt) override;
 };
