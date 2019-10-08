@@ -29,7 +29,7 @@ private:
 public:
 	//内部私有计算函数
 	//Lambda函数
-	float Lambda(vector<vec3> neighborsR, vec3 currentR);
+	float Lambda(vector<vec3> r, int currentIndex);
 	//计算权重的方程
 	float WeightFun(float dis, float re);
 	//计算临时值u* (时间差，u的拉普拉斯结果，当前粒子的u)
@@ -37,6 +37,12 @@ public:
 	//计算隐式拉普拉斯的右端项(初始密度，u*的散度，时间差，n0，n*)
 	vec3 ImplicitLaplacianRight(float rho0, vec3 resDu, float deltaT, float n0, float tempN);
 	float OldImplicitLaplacianRight(float rho0, float deltaT, float n0, float tempN);
+
+
+	//获取矩阵C
+	mat3 GetMaterixC(vector<vec3> R, int currentIndex, float n0);
+	//新方法计算梯度
+
 public:
 	//外部接口
 	static MPSToolFun* GetMPSTool()
@@ -60,43 +66,49 @@ public:
 
 	//显式散度
 	template<typename T>
-	T ExplicitDivergence(vector<T>& neighborsPhi, vector<vec3>& neighborsR, T nowPhi, vec3 nowR, float n0);
+	T ExplicitDivergence(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0);
 	//显式拉普拉斯
 	template<typename T>
-	T ExplicitLaplacian(vector<T>& neighborsPhi, vector<vec3>& neighborsR, T nowPhi, vec3 nowR, float n0);
+	T ExplicitLaplacian(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0);
 	//显式梯度
 	template<typename T>
 	T ExplicitGradient(vector<T> phi, vector<vec3> r, int currentIndex);
 
 	//MPS中密度的计算
-	float DensityN(vector<vec3> neighborsR, vec3 currentR);
+	float DensityN(vector<vec3> r, int currentIndex);
 	//根据速度量u计算新的位置
 	vec3 NewPosR(vec3 nowPos, vec3 u);
 };
 
 template<typename T>
-inline T MPSToolFun::ExplicitDivergence(vector<T>& neighborsPhi, vector<vec3>& neighborsR, T nowPhi, vec3 nowR, float n0)
+inline T MPSToolFun::ExplicitDivergence(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0)
 {
 	T res = T();
-	for (int i = 0; i < neighborsPhi.size(); i++)
+	for (int i = 0; i < phi.size(); i++)
 	{
-		res += ((neighborsPhi[i] - nowPhi) * (neighborsR[i] - nowR) / pow(distance(neighborsR[i], nowR), 2))
-			* WeightFun(distance(neighborsR[i], nowR), reForDG);
+		if (i != currentIndex)
+		{
+			res += ((phi[i] - phi[currentIndex]) * (r[i] - r[currentIndex]) / pow(distance(r[i], r[currentIndex]), 2))
+				* WeightFun(distance(r[i], r[currentIndex]), reForDG);
+		}
 	}
 	res *= (Ds / n0);
 	return res;
 }
 
 template<typename T>
-inline T MPSToolFun::ExplicitLaplacian(vector<T>& neighborsPhi, vector<vec3>& neighborsR, T nowPhi, vec3 nowR, float n0)
+inline T MPSToolFun::ExplicitLaplacian(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0)
 {
 	T res = T();
-	for (int i = 0; i < neighborsPhi.size(); i++)
+	for (int i = 0; i < phi.size(); i++)
 	{
-		res += (neighborsPhi[i] - nowPhi) * WeightFun(distance(neighborsR[i], nowR), reForL);
+		if (i != currentIndex)
+		{
+			res += (phi[i] - phi[currentIndex]) * WeightFun(distance(r[i], r[currentIndex]), reForL);
+		}
 	}
 
-	float lambda = Lambda(neighborsR, nowR);
+	float lambda = Lambda(r, currentIndex);
 
 	res *= (2 * Ds / n0 * lambda);
 	return res;

@@ -28,12 +28,30 @@ float MPSToolFun::OldImplicitLaplacianRight(float rho0, float deltaT, float n0, 
 	return (rho0 / pow(deltaT, 2)) * ((n0 - tempN) / n0);
 }
 
-float MPSToolFun::DensityN(vector<vec3> neighborsR, vec3 currentR)
+mat3 MPSToolFun::GetMaterixC(vector<vec3> R, int currentIndex, float n0)
+{
+	mat3 res(0);
+	for (int i = 0; i < R.size(); i++)
+	{
+		if (i != currentIndex)
+		{
+			vec3 v1 = (1 / length(R[i] - R[currentIndex])) * (R[i] - R[currentIndex]);
+			res += (WeightFun(length(R[i] - R[currentIndex]), reForDG) * outerProduct(v1, v1));
+		}
+	}
+	res *= (1 / n0);
+	return res;
+}
+
+float MPSToolFun::DensityN(vector<vec3> r, int currentIndex)
 {
 	float res = 0;
-	for (int i = 0; i < neighborsR.size(); i++)
+	for (int i = 0; i < r.size(); i++)
 	{
-		res += WeightFun(distance(neighborsR[i], currentR), reForDG);
+		if (i != currentIndex)
+		{
+			res += WeightFun(distance(r[i], r[currentIndex]), reForDG);
+		}
 	}
 	return res;
 }
@@ -43,15 +61,18 @@ vec3 MPSToolFun::NewPosR(vec3 nowPos, vec3 u)
 	return nowPos + u;
 }
 
-float MPSToolFun::Lambda(vector<vec3> neighborsR, vec3 currentR)
+float MPSToolFun::Lambda(vector<vec3> r, int currentIndex)
 {
 	float result = 0;
 	float numerator = 0;
 	float denominator = 0;
-	for (int i = 0; i < neighborsR.size(); i++)
+	for (int i = 0; i < r.size(); i++)
 	{
-		numerator += pow(distance(neighborsR[i], currentR), 2) * WeightFun(distance(neighborsR[i], currentR), reForL);
-		denominator += WeightFun(distance(neighborsR[i], currentR), reForL);
+		if (i != currentIndex)
+		{
+			numerator += pow(distance(r[i], r[currentIndex]), 2) * WeightFun(distance(r[i], r[currentIndex]), reForL);
+			denominator += WeightFun(distance(r[i], r[currentIndex]), reForL);
+		}
 	}
 	result = numerator / denominator;
 	return result;
