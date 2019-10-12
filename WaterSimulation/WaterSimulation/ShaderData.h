@@ -65,3 +65,14 @@ public:
 public:
 	void InitTexture(TEXTURETYPE type, string texPath);
 };
+
+class SimpleShaderData :public ShaderData
+{
+public:
+	vec3 color;
+public:
+	void SetColor(vec3 _color)
+	{
+		color = _color;
+	}
+};

@@ -10,7 +10,7 @@ using namespace std;
 enum RENDERERTYPE
 {
 	UE4RENDERER,
-	PHONGRENDERER,
+	SIMPLERENDER,
 	MPSRENDERER,
 };
 
@@ -30,6 +30,24 @@ public:
 	void SetUniform(string valueName, vec4& value, ShaderProgram& p);
 	void SetUniform(string valueName, vec3& value, ShaderProgram& p);
 	void SetUniform(string valueName, float value, ShaderProgram& p);
+};
+
+class SimpleRenderer :public Renderer
+{
+private:
+	static SimpleRenderer* instance;
+	SimpleRenderer(){}
+public:
+	static SimpleRenderer* GetRenderer()
+	{
+		if (instance == NULL)
+		{
+			instance = new SimpleRenderer();
+		}
+		return instance;
+	}
+
+	void Render(ShaderData* shaderData)override;
 };
 
 //不同的渲染器只需要一个，所以都设为单例

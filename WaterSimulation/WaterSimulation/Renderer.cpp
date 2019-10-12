@@ -115,3 +115,12 @@ void UE4Renderer::Render(ShaderData* shaderData)
 		glBindVertexArray(0);
 	}
 }
+
+void SingleColorRenderer::Render(ShaderData* shaderData)
+{
+	glUseProgram(shaderProgram.p);
+
+	SingleColorShaderData* data = dynamic_cast<SingleColorShaderData*>(shaderData);
+
+	
+}

@@ -54,7 +54,7 @@ void MeshObject::readObjFile(string fileName)
 
 }
 
-void MeshObject::Update()
+void MeshObject::Update(float dt)
 {
 	shaderData->UpdateMatrix(transformation);
 }
@@ -73,7 +73,10 @@ void Object::SetRenderer(RENDERERTYPE type)
 		delete shaderData;
 		shaderData = new UE4ShaderData();
 		break;
-	case PHONGRENDERER:
+	case SIMPLERENDER:
+		renderer = SimpleRenderer::GetRenderer();
+		delete shaderData;
+		shaderData = new SimpleShaderData();
 		break;
 	case MPSRENDERER:
 		break;

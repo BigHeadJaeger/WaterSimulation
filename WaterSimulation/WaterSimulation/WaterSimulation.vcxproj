@@ -50,6 +50,8 @@
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="SimpleShaderFile.frag" />
+    <None Include="SimpleShaderFile.vert" />
     <None Include="UE4ShaderFile.frag" />
     <None Include="UE4ShaderFile.vert" />
   </ItemGroup>

@@ -8,6 +8,7 @@ void MyScene::Init()
 	glewInit();
 	//初始化Renderer中的program
 	UE4Renderer::GetRenderer()->InitProgram("UE4ShaderFile.vert", "UE4ShaderFile.frag");
+	SimpleRenderer::GetRenderer()->InitProgram("SimpleShaderFile.vert", "SimpleShaderFile.frag");
 
 	//pShadowTex.SetShader("shadowTex.v", "shadowTex.f");
 
@@ -30,11 +31,11 @@ void MyScene::Init()
 	MeshObject* cow = new MeshObject();
 	cow->SetName("cow");
 	cow->readObjFile("OBJ\\cow.obj");
-	cow->SetRenderer(UE4RENDERER);
+	cow->SetRenderer(SIMPLERENDER);
 	cow->InitBufferData();
 	cow->GetTransform().SetPosition(vec3(0, 0, 0));
 	cow->GetTransform().SetScaler(vec3(3.0));
-	dynamic_cast<UE4ShaderData*>(cow->GetShaderData())->InitTexture(ALBEDO, "");
+	dynamic_cast<SimpleShaderData*>(cow->GetShaderData())->SetColor(vec3(255, 0, 0));
 
 	objects.insert(pair<string, Object*>(cow->GetName(), cow));
 
@@ -65,7 +66,7 @@ void MyScene::InitKeys()
 	//keys.push_back(Key(BTNW));
 }
 
-void MyScene::Update()
+void MyScene::Update(float dt)
 {
 
 	//计算视角矩阵
@@ -77,7 +78,7 @@ void MyScene::Update()
 	map<string, Object*>::iterator objs_it;
 	for (objs_it = objects.begin(); objs_it != objects.end(); objs_it++)
 	{
-		(*objs_it).second->Update();
+		(*objs_it).second->Update(dt);
 	}
 
 	//cow.UpdateMatrix(mainCamera);

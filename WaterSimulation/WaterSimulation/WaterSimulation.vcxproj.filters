@@ -106,5 +106,11 @@
     <None Include="UE4ShaderFile.vert">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="SimpleShaderFile.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="SimpleShaderFile.vert">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>
