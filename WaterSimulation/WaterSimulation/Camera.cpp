@@ -88,3 +88,5 @@ void Camera::UDRotate(float dis)
 	lookLeft = cross(vec3(0.0, 1.0, 0.0), lookDir);
 	up = cross(lookDir, lookLeft);
 }
+
+MainCamera* MainCamera::instance = NULL;

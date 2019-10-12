@@ -11,7 +11,7 @@ void ShaderData::UpdateMatrix(Transform& t)
 	if (t.rotation.z != 0)
 		world = rotate(world, t.rotation.z, vec3(0.0, 0.0, 1.0));
 	worldInvTranspose = transpose(inverse(world));
-	worldViewProj = mainCamera->pro * mainCamera->view * world;
+	worldViewProj = MainCamera::GetInstance()->pro * MainCamera::GetInstance()->view * world;
 }
 
 void ShaderData::InitVertexBuffer(vector<float>& vertexData, bool providedNormal, bool providedTex)

@@ -18,8 +18,8 @@ void MyScene::Init()
 	lightColor = vec3(400.f, 400.f, 400.f);
 
 	//初始化主相机
-	mainCamera = new Camera();
-	mainCamera->Init(vec3(0, 2, 4), vec3(0, 0, 0));
+	//mainCamera = new Camera();
+	MainCamera::GetInstance()->Init(vec3(0, 2, 4), vec3(0, 0, 0));
 
 	//SetDrawMode(drawMode.isLine, false);
 	drawMode.isLine = false;
@@ -70,9 +70,9 @@ void MyScene::Update(float dt)
 {
 
 	//计算视角矩阵
-	mainCamera->SetView();
+	MainCamera::GetInstance()->SetView();
 	//计算投影矩阵
-	mainCamera->SetPro();
+	MainCamera::GetInstance()->SetPro();
 
 	//遍历所有object更新矩阵
 	map<string, Object*>::iterator objs_it;

@@ -98,6 +98,9 @@
     <ClCompile Include="Interaction.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="UE4ShaderFile.frag">

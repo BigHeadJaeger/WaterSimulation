@@ -116,11 +116,23 @@ void UE4Renderer::Render(ShaderData* shaderData)
 	}
 }
 
-void SingleColorRenderer::Render(ShaderData* shaderData)
+void SimpleRenderer::Render(ShaderData* shaderData)
 {
 	glUseProgram(shaderProgram.p);
+	SimpleShaderData* data = dynamic_cast<SimpleShaderData*>(shaderData);
+	glBindVertexArray(data->VAO);
+	//´«µÝ×ø±ê±ä»»¾ØÕó
+	SetUniform("worldViewProj", data->worldViewProj, shaderProgram);
+	SetUniform("world", data->world, shaderProgram);
+	SetUniform("worldInvTranspose", data->worldInvTranspose, shaderProgram);
 
-	SingleColorShaderData* data = dynamic_cast<SingleColorShaderData*>(shaderData);
-
-	
+	SetUniform("color", data->color, shaderProgram);
+	glDrawArrays(data->drawType, 0, data->drawUnitNumber);
 }
+
+
+
+
+UE4Renderer* UE4Renderer::instance = NULL;
+SimpleRenderer* SimpleRenderer::instance = NULL;
+MPSRenderer* MPSRenderer::instance = NULL;

@@ -32,7 +32,6 @@ private:
 public:
 	~MyScene()
 	{
-		delete mainCamera;
 		map<string, Object*>::iterator objs_it;
 		for (objs_it = objects.begin(); objs_it != objects.end(); objs_it++)
 		{

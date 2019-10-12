@@ -16,14 +16,14 @@ void ShaderDataInitTool::InitVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float
 		vertexPos.push_back(vertexData[i + 2]);
 		if (providedNormal)
 		{
-			vertexPos.push_back(vertexData[i + 3]);
-			vertexPos.push_back(vertexData[i + 4]);
-			vertexPos.push_back(vertexData[i + 5]);
+			vertexNormal.push_back(vertexData[i + 3]);
+			vertexNormal.push_back(vertexData[i + 4]);
+			vertexNormal.push_back(vertexData[i + 5]);
 		}
 		if (providedTex)
 		{
-			vertexPos.push_back(vertexData[i + 6]);
-			vertexPos.push_back(vertexData[i + 7]);
+			vertexTex.push_back(vertexData[i + 6]);
+			vertexTex.push_back(vertexData[i + 7]);
 		}
 	}
 

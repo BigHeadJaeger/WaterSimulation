@@ -30,4 +30,16 @@ public:
 
 //Camera* Camera::MainCamera = NULL;
 
-Camera* mainCamera = NULL;
+class MainCamera :public Camera
+{
+private:
+	static MainCamera* instance;
+	MainCamera(){}
+public:
+	static MainCamera* GetInstance()
+	{
+		if (instance == NULL)
+			instance = new MainCamera();
+		return instance;
+	}
+};

@@ -37,25 +37,35 @@ void MeshObject::readObjFile(string fileName)
 
 	}
 
+	mesh.request_vertex_texcoords2D();
 
-	UE4ShaderData* temp = dynamic_cast<UE4ShaderData*>(shaderData);
-	if (temp == NULL)
-	{
-		cout << "shaderData ptr convert to UE4ShaderData fail" << endl;
-		return;
-	}
-	if (!opt.check(OpenMesh::IO::Options::VertexTexCoord))
-		temp->bUseTexture = false;
-	else
-	{
-		temp->bUseTexture = true;
-		mesh.request_vertex_texcoords2D();
-	}
+	//UE4ShaderData* temp = dynamic_cast<UE4ShaderData*>(shaderData);
+	//if (temp == NULL)
+	//{
+	//	cout << "shaderData ptr convert to UE4ShaderData fail" << endl;
+	//	return;
+	//}
+	//if (!opt.check(OpenMesh::IO::Options::VertexTexCoord))
+	//	temp->bUseTexture = false;
+	//else
+	//{
+	//	temp->bUseTexture = true;
+	//	mesh.request_vertex_texcoords2D();
+	//}
 
+}
+
+void MeshObject::InitBufferData()
+{
+	shaderData->drawUnitNumber = mesh.n_faces() * 3;
+	vector<float> data;
+	GetVertexDataArray(data);
+	shaderData->InitVertexBuffer(data, true, false);
 }
 
 void MeshObject::Update(float dt)
 {
+	
 	shaderData->UpdateMatrix(transformation);
 }
 

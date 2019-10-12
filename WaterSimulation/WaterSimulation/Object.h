@@ -31,6 +31,12 @@ public:
 	virtual void Draw() = 0;
 };
 
+class IGetVertexDataArray
+{
+public:
+	virtual void GetVertexDataArray(vector<float>& data) = 0;
+};
+
 class MeshObject:public Object,public IGetVertexDataArray
 {
 private:
@@ -54,20 +60,10 @@ public:
 	void InitSphere(float radius, int slice, int stack);
 	void InitGrid(float radius, int slice, int stack);
 
-	void InitBufferData()override
-	{
-		vector<float> data;
-		GetVertexDataArray(data);
-		shaderData->InitVertexBuffer(data, true, false);
-	}
+	void InitBufferData()override;
 	void Update(float dt)override;
 	void Draw()override;
 };
 
 
 
-class IGetVertexDataArray
-{
-public:
-	virtual void GetVertexDataArray(vector<float>& data) = 0;
-};
