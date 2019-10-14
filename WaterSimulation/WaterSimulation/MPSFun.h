@@ -71,8 +71,7 @@ public:
 	template<typename T>
 	T ExplicitLaplacian(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0);
 	//显式梯度
-	template<typename T>
-	T ExplicitGradient(vector<T> phi, vector<vec3> r, int currentIndex);
+	vec3 ExplicitGradient(mat3 C, vector<float>& p, vector<vec3>& r, float n0, float Ds, int currentIndex);
 
 	//MPS中密度的计算
 	float DensityN(vector<vec3> r, int currentIndex);
@@ -112,10 +111,4 @@ inline T MPSToolFun::ExplicitLaplacian(vector<T>& phi, vector<vec3>& r, int curr
 
 	res *= (2 * Ds / n0 * lambda);
 	return res;
-}
-
-template<typename T>
-inline T MPSToolFun::ExplicitGradient(vector<T> phi, vector<vec3> r, int currentIndex)
-{
-	return T();
 }

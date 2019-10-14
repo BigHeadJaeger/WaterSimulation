@@ -43,6 +43,38 @@ mat3 MPSToolFun::GetMaterixC(vector<vec3> R, int currentIndex, float n0)
 	return res;
 }
 
+vec3 MPSToolFun::ExplicitGradient(mat3 C, vector<float>& p, vector<vec3>& r, float n0, float Ds,int currentIndex)
+{
+	if (determinant(C) >= 0.05)
+	{
+		vec3 res(0);
+		for (int i = 0; i < p.size(); i++)
+		{
+			if (i != currentIndex)
+			{
+				float l = length(r[i] - r[currentIndex]);
+				res += (WeightFun(length(l), reForDG) * ((p[i] - p[currentIndex]) / l) * ((r[i] - r[currentIndex]) / l));
+			}
+		}
+		res /= n0;
+		return inverse(C)* res;
+	}
+	else
+	{
+		vec3 res(0);
+		for (int i = 0; i < p.size(); i++)
+		{
+			if (i != currentIndex)
+			{
+				float l = length(r[i] - r[currentIndex]);
+				res += (WeightFun(length(l), reForDG) * ((p[i] - p[currentIndex]) / l) * ((r[i] - r[currentIndex]) / l));
+			}
+		}
+		res *= (Ds / n0);
+		return res;
+	}
+}
+
 float MPSToolFun::DensityN(vector<vec3> r, int currentIndex)
 {
 	float res = 0;
