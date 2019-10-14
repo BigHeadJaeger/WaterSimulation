@@ -43,7 +43,7 @@ mat3 MPSToolFun::GetMaterixC(vector<vec3> R, int currentIndex, float n0)
 	return res;
 }
 
-vec3 MPSToolFun::ExplicitGradient(mat3 C, vector<float>& p, vector<vec3>& r, float n0, float Ds,int currentIndex)
+vec3 MPSToolFun::ExplicitGradient(mat3 C, vector<float>& p, vector<vec3>& r, float n0, int currentIndex)
 {
 	if (determinant(C) >= 0.05)
 	{

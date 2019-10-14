@@ -112,5 +112,12 @@ void MPSWaterParticleGroup::Update(float dt)
 	vector<float> resP;
 
 
-	
+	//计算新的压力p
+	for (int i = 0; i < particles.size(); i++)
+	{
+		mat3 C = mpsTool->GetMaterixC(posArray, i, particles[i].n0);
+		vec3 v1 = mpsTool->ExplicitGradient(C, resP, posArray, particles[i].n0, i);
+
+	}
+
 }
