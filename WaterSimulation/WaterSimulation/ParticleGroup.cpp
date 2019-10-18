@@ -103,21 +103,30 @@ void MPSWaterParticleGroup::Update(float dt)
 	}
 	//1.2 计算隐式的P
 	//1.2.1 对所有粒子进行表面检测         疑问：此时公式中的密度怎么算，如果用之前的公式算，那是用r还是r*
+	vector<bool> surfaceJudgeArray;
 	for (int i = 0; i < particles.size(); i++)
 	{
 		particles[i].SurfaceAdjudge(a, mpsTool->DensityN(posArray, i), g, l0);
+		surfaceJudgeArray.push_back(particles[i].isSurface);
 	}
 	//1.2.2 解一个泊松方程
+	//float lambda=mpsTool->Lambda(posArray,)
+	vector<double> resP = mpsTool->ExplicitCalculateP(posArray, surfaceJudgeArray);
 
-	vector<float> resP;
 
-
-	//计算新的压力p
+	//计算每一个粒子新的速度U
 	for (int i = 0; i < particles.size(); i++)
 	{
 		mat3 C = mpsTool->GetMaterixC(posArray, i, particles[i].n0);
-		vec3 v1 = mpsTool->ExplicitGradient(C, resP, posArray, particles[i].n0, i);
+		vec3 v1 = mpsTool->ExplicitGradient(C, resP, posArray, particles[i].n0, i);			//计算每个粒子的显式梯度
+		vec3 resLU = mpsTool->ExplicitLaplacian(uArray, posArray, i, particles[i].n0);
+		particles[i].speed = mpsTool->CalculateU(dt, resLU, v1, particles[i].speed, mpsTool->DensityN(posArray, i));
+	}
 
+	//更新位置
+	for (int i = 0; i < particles.size(); i++)
+	{
+		particles[i].position += particles[i].speed;
 	}
 
 }

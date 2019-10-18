@@ -37,11 +37,12 @@ public:
 	//计算隐式拉普拉斯的右端项(初始密度，u*的散度，时间差，n0，n*)
 	vec3 ImplicitLaplacianRight(float rho0, vec3 resDu, float deltaT, float n0, float tempN);
 	float OldImplicitLaplacianRight(float rho0, float deltaT, float n0, float tempN);
-
-
 	//获取矩阵C
 	mat3 GetMaterixC(vector<vec3> R, int currentIndex, float n0);
-	//新方法计算梯度
+
+	//和大型方程组相关的函数
+	//1.方程的构造
+	void ConstructEquation(int dimension);
 
 public:
 	//外部接口
@@ -70,13 +71,17 @@ public:
 	//显式拉普拉斯
 	template<typename T>
 	T ExplicitLaplacian(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0);
-	//显式梯度
-	vec3 ExplicitGradient(mat3 C, vector<float>& p, vector<vec3>& r, float n0, int currentIndex);
+	//显式梯度（新方法计算梯度）
+	vec3 ExplicitGradient(mat3 C, vector<double>& p, vector<vec3>& r, float n0, int currentIndex);
 
 	//MPS中密度的计算
 	float DensityN(vector<vec3> r, int currentIndex);
 	//根据速度量u计算新的位置
 	vec3 NewPosR(vec3 nowPos, vec3 u);
+	//计算真实的u值
+	vec3 CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, float tho);
+
+	vector<double> ExplicitCalculateP(vector<vec3> r, vector<bool> isSurface);
 };
 
 template<typename T>

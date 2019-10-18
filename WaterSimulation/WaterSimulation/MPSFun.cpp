@@ -18,6 +18,26 @@ vec3 MPSToolFun::TempU(float deltaT, vec3 resLU, vec3 uNow)
 	return deltaT * (viscosity * resLU + g) + uNow;
 }
 
+vec3 MPSToolFun::CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, float tho)
+{
+	return deltaT * ((-1 / tho) * resGP + viscosity * resLU + g) + uNow;
+}
+
+vector<double> MPSToolFun::ExplicitCalculateP(vector<vec3> r, vector<bool> isSurface)
+{
+	//每一行中的n0和lambda都是不同的
+
+	vector<double> a;			//Values
+	vector<int> ia;				//rowIndex
+	vector<int> ja;				//columns
+
+	vector<double> b;			//方程右边的值
+	vector<double> x;			//解的集合
+	int nRhs = 1;			//b数组和x数组中每一个向量所包含的元素的个数，此时是2
+
+	return x;
+}
+
 vec3 MPSToolFun::ImplicitLaplacianRight(float rho0, vec3 resDu, float deltaT, float n0, float tempN)
 {
 	return (1 - gama) * rho0 * (resDu / deltaT) - gama * (rho0 / pow(deltaT, 2)) * ((tempN - n0) / n0);
@@ -43,7 +63,7 @@ mat3 MPSToolFun::GetMaterixC(vector<vec3> R, int currentIndex, float n0)
 	return res;
 }
 
-vec3 MPSToolFun::ExplicitGradient(mat3 C, vector<float>& p, vector<vec3>& r, float n0, int currentIndex)
+vec3 MPSToolFun::ExplicitGradient(mat3 C, vector<double>& p, vector<vec3>& r, float n0, int currentIndex)
 {
 	if (determinant(C) >= 0.05)
 	{
@@ -53,7 +73,7 @@ vec3 MPSToolFun::ExplicitGradient(mat3 C, vector<float>& p, vector<vec3>& r, flo
 			if (i != currentIndex)
 			{
 				float l = length(r[i] - r[currentIndex]);
-				res += (WeightFun(length(l), reForDG) * ((p[i] - p[currentIndex]) / l) * ((r[i] - r[currentIndex]) / l));
+				res += (WeightFun(length(l), reForDG) * (((float)p[i] - (float)p[currentIndex]) / l) * ((r[i] - r[currentIndex]) / l));
 			}
 		}
 		res /= n0;
@@ -67,7 +87,7 @@ vec3 MPSToolFun::ExplicitGradient(mat3 C, vector<float>& p, vector<vec3>& r, flo
 			if (i != currentIndex)
 			{
 				float l = length(r[i] - r[currentIndex]);
-				res += (WeightFun(length(l), reForDG) * ((p[i] - p[currentIndex]) / l) * ((r[i] - r[currentIndex]) / l));
+				res += (WeightFun(length(l), reForDG) * (((float)p[i] - (float)p[currentIndex]) / l) * ((r[i] - r[currentIndex]) / l));
 			}
 		}
 		res *= (Ds / n0);
