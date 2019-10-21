@@ -23,7 +23,7 @@ vec3 MPSToolFun::CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, flo
 	return deltaT * ((-1 / tho) * resGP + viscosity * resLU + g) + uNow;
 }
 
-vector<double> MPSToolFun::ImplicitCalculateP(vector<vec3> r, vector<bool> isSurface)
+vector<double> MPSToolFun::ImplicitCalculateP(vector<vec3>& r, vector<float>& n0Array, vector<bool>& isSurface)
 {
 	//每一行中的n0和lambda都是不同的
 
@@ -34,6 +34,24 @@ vector<double> MPSToolFun::ImplicitCalculateP(vector<vec3> r, vector<bool> isSur
 	vector<double> b;			//方程右边的值
 	vector<double> x;			//解的集合
 	int nRhs = 1;			//b数组和x数组中每一个向量所包含的元素的个数，此时是2
+
+	for (int i = 0; i < n0Array.size(); i++)
+	{
+		float currentRowCoeff = 0;			//当前行标未知数的系数需要其它未知数的系数共同决定
+		for (int j = 0; j < n0Array.size(); j++)
+		{
+			float n0 = n0Array[j];
+			float 
+			if (i != j)
+			{
+
+			}
+			else
+			{
+
+			}
+		}
+	}
 
 	return x;
 }
@@ -48,7 +66,7 @@ float MPSToolFun::OldImplicitLaplacianRight(float rho0, float deltaT, float n0, 
 	return (rho0 / pow(deltaT, 2)) * ((n0 - tempN) / n0);
 }
 
-mat3 MPSToolFun::GetMaterixC(vector<vec3> R, int currentIndex, float n0)
+mat3 MPSToolFun::GetMaterixC(vector<vec3>& R, int currentIndex, float n0)
 {
 	mat3 res(0);
 	for (int i = 0; i < R.size(); i++)

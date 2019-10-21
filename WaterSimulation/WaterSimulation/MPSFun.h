@@ -38,7 +38,7 @@ public:
 	vec3 ImplicitLaplacianRight(float rho0, vec3 resDu, float deltaT, float n0, float tempN);
 	float OldImplicitLaplacianRight(float rho0, float deltaT, float n0, float tempN);
 	//获取矩阵C
-	mat3 GetMaterixC(vector<vec3> R, int currentIndex, float n0);
+	mat3 GetMaterixC(vector<vec3>& R, int currentIndex, float n0);
 
 	//和大型方程组相关的函数
 	//1.方程的构造
@@ -81,7 +81,7 @@ public:
 	//计算真实的u值
 	vec3 CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, float tho);
 	//隐式计算P（解稀疏方程组）
-	vector<double> ImplicitCalculateP(vector<vec3> r, vector<bool> isSurface);
+	vector<double> ImplicitCalculateP(vector<vec3>& r, vector<float>& n0, vector<bool>& isSurface);
 };
 
 template<typename T>

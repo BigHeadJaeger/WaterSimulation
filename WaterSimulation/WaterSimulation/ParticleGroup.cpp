@@ -105,16 +105,19 @@ void MPSWaterParticleGroup::Update(float dt)
 		Right.push_back(mpsTool->OldImplicitLaplacianRight(particles[i].n0, dt, particles[i].n0, mpsTool->DensityN(tempPos, i)));
 	}
 	//1.2 计算隐式的P
+	vector<bool> surfaceJudgeArray;			//记录粒子的表面判断
+	vector<float> n0Array;					//记录粒子的初始密度
+
 	//1.2.1 对所有粒子进行表面检测         疑问：此时公式中的密度怎么算，如果用之前的公式算，那是用r还是r*
-	vector<bool> surfaceJudgeArray;
 	for (int i = 0; i < particles.size(); i++)
 	{
 		particles[i].SurfaceAdjudge(a, mpsTool->DensityN(posArray, i), g, l0);
 		surfaceJudgeArray.push_back(particles[i].isSurface);
+		n0Array.push_back(particles[i].n0);
 	}
 	//1.2.2 解一个泊松方程
 	//float lambda=mpsTool->Lambda(posArray,)
-	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, surfaceJudgeArray);
+	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, n0Array, surfaceJudgeArray);
 
 
 	//计算每一个粒子新的速度U
