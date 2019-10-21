@@ -42,7 +42,7 @@ public:
 
 	//和大型方程组相关的函数
 	//1.方程的构造
-	void ConstructEquation(int dimension);
+	//void ConstructEquation(int dimension);
 
 public:
 	//外部接口
@@ -80,8 +80,8 @@ public:
 	vec3 NewPosR(vec3 nowPos, vec3 u);
 	//计算真实的u值
 	vec3 CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, float tho);
-
-	vector<double> ExplicitCalculateP(vector<vec3> r, vector<bool> isSurface);
+	//隐式计算P（解稀疏方程组）
+	vector<double> ImplicitCalculateP(vector<vec3> r, vector<bool> isSurface);
 };
 
 template<typename T>

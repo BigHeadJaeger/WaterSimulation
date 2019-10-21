@@ -2,11 +2,14 @@
 
 void MPSWaterParticleGroup::InitParticles()
 {
+	vector<vec3> positions;
+	particleNumber = CubeDistribute(positions, transformation.position, vec3(0.5), 10, 10, 10);
 	for (int i = 0; i < particleNumber; i++)
 	{
 		//初始化当前粒子并push进去
 		MPSWaterParticle R;
 		//此处指定粒子属性 位置
+		R.position = positions[i];
 		R.index = i;
 		particles.push_back(R);
 	}
@@ -111,7 +114,7 @@ void MPSWaterParticleGroup::Update(float dt)
 	}
 	//1.2.2 解一个泊松方程
 	//float lambda=mpsTool->Lambda(posArray,)
-	vector<double> resP = mpsTool->ExplicitCalculateP(posArray, surfaceJudgeArray);
+	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, surfaceJudgeArray);
 
 
 	//计算每一个粒子新的速度U

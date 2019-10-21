@@ -7,6 +7,7 @@ using namespace std;
 #include"Object.h"
 #include"PublicStruct.h"
 #include"Particle.h"
+#include"DistributeFun.h"
 
 //粒子群的基类
 class ParticleGroup:public Object

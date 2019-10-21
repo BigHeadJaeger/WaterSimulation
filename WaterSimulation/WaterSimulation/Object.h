@@ -46,7 +46,8 @@ private:
 public:
 	MeshObject()
 	{
-
+		shaderData = NULL;
+		renderer = NULL;
 	}
 	~MeshObject()
 	{

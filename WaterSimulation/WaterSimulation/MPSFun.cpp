@@ -23,7 +23,7 @@ vec3 MPSToolFun::CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, flo
 	return deltaT * ((-1 / tho) * resGP + viscosity * resLU + g) + uNow;
 }
 
-vector<double> MPSToolFun::ExplicitCalculateP(vector<vec3> r, vector<bool> isSurface)
+vector<double> MPSToolFun::ImplicitCalculateP(vector<vec3> r, vector<bool> isSurface)
 {
 	//每一行中的n0和lambda都是不同的
 

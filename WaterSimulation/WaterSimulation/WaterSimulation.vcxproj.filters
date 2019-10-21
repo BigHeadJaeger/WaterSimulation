@@ -57,6 +57,9 @@
     <ClInclude Include="Interaction.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DistributeFun.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Particle.cpp">
