@@ -76,7 +76,7 @@ void MPSWaterParticleGroup::Update(float dt)
 	// u的拉普拉斯结果
 	// u*的计算
 	// n*的计算
-	vector<float> Right;		//存储每一个粒子的右端项
+	vector<double> Right;		//存储每一个粒子的右端项
 	
 	vector<vec3> posArray;
 	vector<vec3> uArray;
@@ -117,7 +117,7 @@ void MPSWaterParticleGroup::Update(float dt)
 	}
 	//1.2.2 解一个泊松方程
 	//float lambda=mpsTool->Lambda(posArray,)
-	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, n0Array, surfaceJudgeArray);
+	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, n0Array, surfaceJudgeArray，Right);
 
 
 	//计算每一个粒子新的速度U

@@ -1,10 +1,14 @@
 #pragma once
 #include<vector>
 #include<glm.hpp>
+#include<iostream>
 using namespace glm;
 using namespace std;
 
 #include"Const.h"
+#include<mkl.h>
+#include<algorithm>
+#include<omp.h>
 
 class MPSToolFun
 {
@@ -42,7 +46,8 @@ public:
 
 	//和大型方程组相关的函数
 	//1.方程的构造
-	//void ConstructEquation(int dimension);
+	bool SolveEquation(vector<double>& a, vector<int>& ia, vector<int>& ja,
+		vector<double>& b, vector<double>& x, int nRhs);
 
 public:
 	//外部接口
@@ -81,7 +86,7 @@ public:
 	//计算真实的u值
 	vec3 CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, float tho);
 	//隐式计算P（解稀疏方程组）
-	vector<double> ImplicitCalculateP(vector<vec3>& r, vector<float>& n0, vector<bool>& isSurface);
+	vector<double> ImplicitCalculateP(vector<vec3>& r, vector<float>& n0Array, vector<bool>& isSurface, vector<double> Right);
 };
 
 template<typename T>
