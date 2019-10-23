@@ -117,7 +117,7 @@ void MPSWaterParticleGroup::Update(float dt)
 	}
 	//1.2.2 解一个泊松方程
 	//float lambda=mpsTool->Lambda(posArray,)
-	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, n0Array, surfaceJudgeArray，Right);
+	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, n0Array, surfaceJudgeArray, Right);
 
 
 	//计算每一个粒子新的速度U

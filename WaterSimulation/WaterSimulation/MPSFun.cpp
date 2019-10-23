@@ -15,12 +15,12 @@ float MPSToolFun::WeightFun(float dis,float re)
 
 vec3 MPSToolFun::TempU(float deltaT, vec3 resLU, vec3 uNow)
 {
-	return deltaT * (viscosity * resLU + g) + uNow;
+	return deltaT * (viscosity * resLU + vG) + uNow;
 }
 
 vec3 MPSToolFun::CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, float tho)
 {
-	return deltaT * ((-1 / tho) * resGP + viscosity * resLU + g) + uNow;
+	return deltaT * ((-1 / tho) * resGP + viscosity * resLU + vG) + uNow;
 }
 
 vector<double> MPSToolFun::ImplicitCalculateP(vector<vec3>& r, vector<float>& n0Array, vector<bool>& isSurface,vector<double> Right)

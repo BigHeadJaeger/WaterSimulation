@@ -21,6 +21,9 @@ private:
 	float reForL;			//计算拉普拉斯的re
 	float viscosity;		//粘度系数
 	float gama;				//
+
+	vec3 vG;				//重力加速度的向量形式
+
 	MPSToolFun()
 	{
 		Ds = 3;
@@ -28,6 +31,7 @@ private:
 		reForL = 0;
 		viscosity = 0;
 		gama = 0.01;
+		vG = vec3(0, -9.8, 0);
 	}
 
 public:
