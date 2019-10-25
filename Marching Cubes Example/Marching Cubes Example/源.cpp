@@ -12,7 +12,8 @@
 //
 // This code is public domain.
 //
-
+#include<iostream>
+using namespace std;
 #include "stdio.h"
 #include "math.h"
 //This program requires the OpenGL and GLUT libraries
@@ -83,14 +84,15 @@ static const GLfloat afSpecularRed[] = { 1.00, 0.25, 0.25, 1.00 };
 static const GLfloat afSpecularGreen[] = { 0.25, 1.00, 0.25, 1.00 };
 static const GLfloat afSpecularBlue[] = { 0.25, 0.25, 1.00, 1.00 };
 
+GLfloat fContainerSize = 3;
 
 GLenum    ePolygonMode = GL_FILL;
-GLint     iDataSetSize = 16;
-GLfloat   fStepSize = 1.0 / iDataSetSize;
-GLfloat   fTargetValue = 48.0;
+GLint     iDataSetSize = 60;
+GLfloat   fStepSize = fContainerSize / iDataSetSize;
+GLfloat   fTargetValue = 80;
 GLfloat   fTime = 0.0;
-GLvector  sSourcePoint[3];
-GLboolean bSpin = true;
+GLvector  sSourcePoint[4];
+GLboolean bSpin = false;
 GLboolean bMove = true;
 GLboolean bLight = true;
 
@@ -177,7 +179,7 @@ GLvoid vPrintHelp()
 
 void vResize(GLsizei iWidth, GLsizei iHeight)
 {
-	GLfloat fAspect, fHalfWorldSize = (1.4142135623730950488016887242097 / 2);
+	GLfloat fAspect, fHalfWorldSize = (1.4 / 2);
 
 	glViewport(0, 0, iWidth, iHeight);
 	glMatrixMode(GL_PROJECTION);
@@ -410,7 +412,7 @@ GLvoid vSetTime(GLfloat fNewTime)
 	GLfloat fOffset;
 	GLint iSourceNum;
 
-	for (iSourceNum = 0; iSourceNum < 3; iSourceNum++)
+	for (iSourceNum = 0; iSourceNum < 4; iSourceNum++)
 	{
 		sSourcePoint[iSourceNum].fX = 0.5;
 		sSourcePoint[iSourceNum].fY = 0.5;
@@ -419,9 +421,12 @@ GLvoid vSetTime(GLfloat fNewTime)
 
 	fTime = fNewTime;
 	fOffset = 1.0 + sinf(fTime);
+	//cout << fOffset / 2 << endl;
 	sSourcePoint[0].fX *= fOffset;
 	sSourcePoint[1].fY *= fOffset;
 	sSourcePoint[2].fZ *= fOffset;
+	sSourcePoint[3].fX *= fOffset;
+	sSourcePoint[3].fY *= fOffset;
 }
 
 //fSample1 finds the distance of (fX, fY, fZ) from three moving points
@@ -432,7 +437,7 @@ GLfloat fSample1(GLfloat fX, GLfloat fY, GLfloat fZ)
 	fDx = fX - sSourcePoint[0].fX;
 	fDy = fY - sSourcePoint[0].fY;
 	fDz = fZ - sSourcePoint[0].fZ;
-	fResult += 0.5 / (fDx * fDx + fDy * fDy + fDz * fDz);
+	fResult += 1 / (fDx * fDx + fDy * fDy + fDz * fDz);			//1为球的半径的平方，当前点在球外时，这个式子返回值大于1
 
 	fDx = fX - sSourcePoint[1].fX;
 	fDy = fY - sSourcePoint[1].fY;
@@ -442,8 +447,12 @@ GLfloat fSample1(GLfloat fX, GLfloat fY, GLfloat fZ)
 	fDx = fX - sSourcePoint[2].fX;
 	fDy = fY - sSourcePoint[2].fY;
 	fDz = fZ - sSourcePoint[2].fZ;
-	fResult += 1.5 / (fDx * fDx + fDy * fDy + fDz * fDz);
+	fResult += 1 / (fDx * fDx + fDy * fDy + fDz * fDz);
 
+	fDx = fX - sSourcePoint[3].fX;
+	fDy = fY - sSourcePoint[3].fY;
+	fDz = fZ - sSourcePoint[3].fZ;
+	fResult += 1 / (fDx * fDx + fDy * fDy + fDz * fDz);
 	return fResult;
 }
 
@@ -463,6 +472,10 @@ GLfloat fSample2(GLfloat fX, GLfloat fY, GLfloat fZ)
 	fDy = fY - sSourcePoint[2].fY;
 	fDz = fZ - sSourcePoint[2].fZ;
 	fResult += 1.0 / (fDy * fDy + fDz * fDz);
+
+	fDy = fY - sSourcePoint[3].fY;
+	fDz = fZ - sSourcePoint[3].fZ;
+	fResult += 1.25 / (fDy * fDy + fDz * fDz);
 
 	return fResult;
 }
@@ -506,8 +519,8 @@ GLvoid vMarchCube1(GLfloat fX, GLfloat fY, GLfloat fZ, GLfloat fScale)
 	//Make a local copy of the values at the cube's corners
 	for (iVertex = 0; iVertex < 8; iVertex++)
 	{
-		afCubeValue[iVertex] = fSample(fX + a2fVertexOffset[iVertex][0] * fScale,
-			fY + a2fVertexOffset[iVertex][1] * fScale,
+		afCubeValue[iVertex] = fSample(fX + a2fVertexOffset[iVertex][0] * fScale,			//遍历传进来的点(fx,fy,fy)是立方体的角坐标，
+			fY + a2fVertexOffset[iVertex][1] * fScale,										//此处通过换算得到当前小立方体的8个顶点
 			fZ + a2fVertexOffset[iVertex][2] * fScale);
 	}
 
