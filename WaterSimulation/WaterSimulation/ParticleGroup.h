@@ -51,7 +51,7 @@ public:
 
 	void InitParticles();
 	void InitMPSTool();
-	void Modeling(vector<float>& verticesInfo, bool& provideNormal, bool& provideTex);
+	void Modeling() override;
 
 
 	void Update(float dt) override;
@@ -65,5 +65,5 @@ public:
 class IModelingParticle
 {
 public:
-	virtual void Modeling(vector<float>& verticesInfo, bool& provideNormal, bool& provideTex) = 0;	//参数内的都是返回值，分别为顶点信息数组 是否提供法向量 是否提供纹理坐标
+	virtual void Modeling() = 0;	//参数内的都是返回值，分别为顶点信息数组 是否提供法向量 是否提供纹理坐标
 };

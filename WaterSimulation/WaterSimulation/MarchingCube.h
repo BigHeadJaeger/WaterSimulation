@@ -30,7 +30,7 @@ static const GLfloat a2fEdgeDirection[12][3] =
 
 
 
-class MetaBall
+class MarchingCube
 {
 private:
 	GLfloat fContainerSize;
@@ -38,13 +38,16 @@ private:
 	GLfloat   fStepSize;
 	GLfloat   fTargetValue;
 public:
-	MetaBall()
+	MarchingCube()
 	{
 		fContainerSize = 3;
 		iDataSetSize = 60;
 		fStepSize = fContainerSize / iDataSetSize;
 		fTargetValue = 80;
 	}
+
+	//传入点的位置 返回顶点信息数组
+	void GetMeshData(vector<vec3>& sourcePoints, vector<float>& verticesInfo, bool& provideNormal, bool& provideTex);
 };
 
 
