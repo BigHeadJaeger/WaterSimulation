@@ -60,7 +60,7 @@
     <ClInclude Include="DistributeFun.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Metaball.h">
+    <ClInclude Include="MarchingCube.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -105,6 +105,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MarchingCube.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

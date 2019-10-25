@@ -8,6 +8,7 @@ using namespace std;
 #include"PublicStruct.h"
 #include"Particle.h"
 #include"DistributeFun.h"
+#include"MarchingCube.h"
 
 //粒子群的基类
 class ParticleGroup:public Object

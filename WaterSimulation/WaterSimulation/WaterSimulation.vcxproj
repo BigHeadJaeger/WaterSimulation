@@ -23,7 +23,7 @@
     <ClInclude Include="Const.h" />
     <ClInclude Include="DistributeFun.h" />
     <ClInclude Include="Interaction.h" />
-    <ClInclude Include="Metaball.h" />
+    <ClInclude Include="MarchingCube.h" />
     <ClInclude Include="MPSFun.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Particle.h" />
@@ -40,6 +40,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Interaction.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MarchingCube.cpp" />
     <ClCompile Include="MPSFun.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Particle.cpp" />

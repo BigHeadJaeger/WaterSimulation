@@ -28,6 +28,23 @@ void MPSWaterParticleGroup::InitMPSTool()
 	mpsTool->SetViscosity(viscosity);
 }
 
+void MPSWaterParticleGroup::Modeling()
+{
+	vector<vec3> posArray;
+	for (int i = 0; i < particles.size(); i++)
+	{
+		posArray.push_back(particles[i].position);
+	}
+
+	vector<float> verticesInfo;
+	bool provideNormal;
+	bool provideTex;
+
+	MarchingCube::GetInstance()->GetMeshData(posArray, verticesInfo, provideNormal, provideTex);
+
+	shaderData->InitVertexBuffer(verticesInfo, provideNormal, provideTex);
+}
+
 void MPSWaterParticleGroup::SetInitialN0()
 {
 	MPSToolFun* tool = MPSToolFun::GetMPSTool();
@@ -135,4 +152,6 @@ void MPSWaterParticleGroup::Update(float dt)
 		particles[i].position += particles[i].speed;
 	}
 
+	//将计算好的位置点进行建模
+	//Modeling();
 }

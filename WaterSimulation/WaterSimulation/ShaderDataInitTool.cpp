@@ -4,6 +4,7 @@ ShaderDataInitTool* ShaderDataInitTool::instance = NULL;
 
 void ShaderDataInitTool::InitVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float>& vertexData, bool providedNormal, bool providedTex)
 {
+	glDeleteVertexArrays(1, &VAO);
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 	vector<float> vertexPos;
@@ -28,6 +29,7 @@ void ShaderDataInitTool::InitVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float
 	}
 
 	//创建顶点buffer
+	glDeleteBuffers(1, &VBO);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);					//先绑定，在用VAO传值时，就传送的是当前绑定的buffer
 
