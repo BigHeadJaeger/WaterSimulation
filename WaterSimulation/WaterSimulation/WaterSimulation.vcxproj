@@ -23,6 +23,7 @@
     <ClInclude Include="Const.h" />
     <ClInclude Include="DistributeFun.h" />
     <ClInclude Include="Interaction.h" />
+    <ClInclude Include="Metaball.h" />
     <ClInclude Include="MPSFun.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Particle.h" />

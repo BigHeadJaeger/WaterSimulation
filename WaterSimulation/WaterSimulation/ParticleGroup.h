@@ -26,7 +26,7 @@ class NormalParticle:public ParticleGroup
 };
 
 //MPS算法的水粒子群
-class MPSWaterParticleGroup:public ParticleGroup
+class MPSWaterParticleGroup:public ParticleGroup,public IModelingParticle
 {
 protected:
 	//算法中粒子群体的属性
@@ -51,7 +51,19 @@ public:
 
 	void InitParticles();
 	void InitMPSTool();
+	void Modeling(vector<float>& verticesInfo, bool& provideNormal, bool& provideTex);
 
 
 	void Update(float dt) override;
+};
+
+
+
+
+
+//粒子的建模接口(如果粒子需要进行建模之后再渲染，如metaball等)
+class IModelingParticle
+{
+public:
+	virtual void Modeling(vector<float>& verticesInfo, bool& provideNormal, bool& provideTex) = 0;	//参数内的都是返回值，分别为顶点信息数组 是否提供法向量 是否提供纹理坐标
 };
