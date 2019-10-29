@@ -101,7 +101,7 @@ inline T MPSToolFun::ExplicitDivergence(vector<T>& phi, vector<vec3>& r, int cur
 	{
 		if (i != currentIndex)
 		{
-			res += ((phi[i] - phi[currentIndex]) * (r[i] - r[currentIndex]) / pow(distance(r[i], r[currentIndex]), 2))
+			res += (dot((phi[i] - phi[currentIndex]), (r[i] - r[currentIndex])) / pow(distance(r[i], r[currentIndex]), 2))
 				* WeightFun(distance(r[i], r[currentIndex]), reForDG);
 		}
 	}

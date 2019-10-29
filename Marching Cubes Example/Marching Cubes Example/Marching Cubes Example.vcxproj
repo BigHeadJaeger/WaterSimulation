@@ -73,8 +73,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\MyProgram\ComputerGraphics\Render\WaterSimulation\Marching Cubes Example\freeglut\include\64;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\MyProgram\ComputerGraphics\Render\WaterSimulation\Marching Cubes Example\freeglut\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\MyProgram\ComputerGraphics\WaterSimulation\Marching Cubes Example\freeglut\include\64;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\MyProgram\ComputerGraphics\WaterSimulation\Marching Cubes Example\freeglut\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
