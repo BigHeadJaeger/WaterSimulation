@@ -51,7 +51,10 @@ private:
 	}
 private:
 	GLfloat Sample(GLfloat fX, GLfloat fY, GLfloat fZ);
-	void MarchCube(GLfloat fX, GLfloat fY, GLfloat fZ, GLfloat fScale);
+	void MarchCube(GLfloat fX, GLfloat fY, GLfloat fZ, GLfloat fScale, vector<float>& verticesInfo);
+	GLfloat GetOffset(GLfloat fValue1, GLfloat fValue2, GLfloat fValueDesired);
+	void GetNormal(vec3& rfNormal, GLfloat fX, GLfloat fY, GLfloat fZ);
+	void NormalizeVector(vec3& rfVectorResult, vec3& rfVectorSource);
 public:
 	static MarchingCube* GetInstance()
 	{
