@@ -2,6 +2,8 @@
 	openGL相关：glew glfw 
 	数学库：mkl glm
 	网格相关：openMesh
+	......
+	
 
 版本控制：git 地址：https://github.com/BigHeadJaeger/WaterSimulation.git
 
