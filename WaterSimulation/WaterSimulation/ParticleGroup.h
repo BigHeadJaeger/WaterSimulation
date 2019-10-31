@@ -36,6 +36,8 @@ protected:
 	float viscosity;
 	float a;
 	vector<MPSWaterParticle> particles;
+
+	MarchingCube* marchingCube;					//一个指针，当需要用的时候才初始化它（相当于一个组件）
 private:
 	void SetInitialN0();
 
@@ -48,6 +50,14 @@ public:
 		range = 0.5;
 		viscosity = 1;
 		a = 0.75;
+
+		marchingCube = NULL;
+	}
+
+	~MPSWaterParticleGroup()
+	{
+		if (marchingCube)
+			delete marchingCube;
 	}
 
 	void InitParticles();
@@ -57,9 +67,6 @@ public:
 
 	void Update(float dt) override;
 };
-
-
-
 
 
 //粒子的建模接口(如果粒子需要进行建模之后再渲染，如metaball等)

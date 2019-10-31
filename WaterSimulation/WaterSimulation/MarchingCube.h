@@ -33,22 +33,7 @@ static const GLfloat a2fEdgeDirection[12][3] =
 class MarchingCube
 {
 private:
-	static MarchingCube* instance;
-
-	GLfloat fContainerSize;
-	GLint     iDataSetSize;
-	GLfloat   fStepSize;
-	GLfloat   fTargetValue;
-
 	vector<vec3>* sourceData;
-	MarchingCube()
-	{
-		fContainerSize = 3;
-		iDataSetSize = 60;
-		fStepSize = fContainerSize / iDataSetSize;
-		fTargetValue = 80;
-		sourceData = NULL;
-	}
 private:
 	GLfloat Sample(GLfloat fX, GLfloat fY, GLfloat fZ);
 	void MarchCube(GLfloat fX, GLfloat fY, GLfloat fZ, GLfloat fScale, vector<float>& verticesInfo);
@@ -56,13 +41,18 @@ private:
 	void GetNormal(vec3& rfNormal, GLfloat fX, GLfloat fY, GLfloat fZ);
 	void NormalizeVector(vec3& rfVectorResult, vec3& rfVectorSource);
 public:
-	static MarchingCube* GetInstance()
+	GLfloat fContainerSize;
+	GLint     iDataSetSize;
+	GLfloat   fStepSize;
+	GLfloat   fTargetValue;
+
+	MarchingCube()
 	{
-		if (instance == NULL)
-		{
-			instance = new MarchingCube();
-		}
-		return instance;
+		fContainerSize = 3;
+		iDataSetSize = 60;
+		fStepSize = fContainerSize / iDataSetSize;
+		fTargetValue = 80;
+		sourceData = NULL;
 	}
 
 	//传入点的位置 返回顶点信息数组

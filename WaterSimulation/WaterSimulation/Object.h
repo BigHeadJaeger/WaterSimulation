@@ -5,6 +5,7 @@
 #include<OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
 using namespace std;
 #include"Renderer.h"
+#include"MarchingCube.h"
 typedef OpenMesh::TriMesh_ArrayKernelT<> Mesh;
 
 //基类Object
@@ -18,6 +19,16 @@ protected:
 protected:
 	//void UpdateMatrix() { shaderData->UpdateMatrix(transformation); }
 public:
+	Object()
+	{
+		shaderData = NULL;
+		renderer = NULL;
+	}
+
+	~Object()
+	{
+		delete shaderData;
+	}
 	//Get
 	string GetName() { return name; }
 	Transform& GetTransform() { return transformation; }
@@ -31,12 +42,7 @@ public:
 	virtual void Draw() = 0;
 };
 
-class IGetVertexDataArray
-{
-public:
-	virtual void GetVertexDataArray(vector<float>& data) = 0;
-};
-
+//网格物体
 class MeshObject:public Object,public IGetVertexDataArray
 {
 private:
@@ -46,15 +52,12 @@ private:
 public:
 	MeshObject()
 	{
-		shaderData = NULL;
-		renderer = NULL;
+
 	}
 	~MeshObject()
 	{
-		delete shaderData;
+		
 	}
-
-
 
 	void readObjFile(string fileName);
 	void InitBox(float width, float height, float depth);
@@ -66,5 +69,21 @@ public:
 	void Draw()override;
 };
 
+//Metaball
+class Metaball:public Object
+{
+private:
+	MarchingCube marchingCube;
+	vector<vec3> sourcePoints;
+public:
+	void InitBufferData()override;
+	void Update(float dt)override;
+	void Draw()override;
+};
 
-
+//接口
+class IGetVertexDataArray
+{
+public:
+	virtual void GetVertexDataArray(vector<float>& data) = 0;
+};

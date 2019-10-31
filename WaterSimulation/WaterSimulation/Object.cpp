@@ -94,3 +94,23 @@ void Object::SetRenderer(RENDERERTYPE type)
 		break;
 	}
 }
+
+void Metaball::InitBufferData()
+{
+	int pointCount = 0;
+	vector<float> verticesInfo;
+	bool provideNormal;
+	bool provideTex;
+	marchingCube.GetMeshData(sourcePoints, verticesInfo, provideNormal, provideTex);
+	pointCount = verticesInfo.size() / 8;
+	shaderData->drawUnitNumber = pointCount;
+	shaderData->InitVertexBuffer(verticesInfo, provideNormal, provideTex);
+}
+
+void Metaball::Update(float dt)
+{
+	//对sourcePoint进行坐标变化
+
+
+	shaderData->UpdateMatrix(transformation);
+}

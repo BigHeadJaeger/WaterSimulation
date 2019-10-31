@@ -150,6 +150,3 @@ void MarchingCube::GetMeshData(vector<vec3>& sourcePoints, vector<float>& vertic
 				MarchCube(iX * fStepSize, iY * fStepSize, iZ * fStepSize, fStepSize, verticesInfo);
 			}
 }
-
-
-MarchingCube* MarchingCube::instance = NULL;

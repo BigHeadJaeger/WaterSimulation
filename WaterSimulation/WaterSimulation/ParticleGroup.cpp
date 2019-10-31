@@ -39,8 +39,9 @@ void MPSWaterParticleGroup::Modeling()
 	vector<float> verticesInfo;
 	bool provideNormal;
 	bool provideTex;
-
-	MarchingCube::GetInstance()->GetMeshData(posArray, verticesInfo, provideNormal, provideTex);
+	marchingCube = new MarchingCube();
+	marchingCube->GetMeshData(posArray, verticesInfo, provideNormal, provideTex);
+	//MarchingCube::GetInstance()->GetMeshData(posArray, verticesInfo, provideNormal, provideTex);
 
 	shaderData->InitVertexBuffer(verticesInfo, provideNormal, provideTex);
 }
