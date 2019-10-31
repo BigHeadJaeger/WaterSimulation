@@ -160,7 +160,7 @@ bool MPSToolFun::SolveEquation(vector<double>& a, vector<int>& ia, vector<int>& 
 	return true;
 }
 
-vec3 MPSToolFun::ImplicitLaplacianRight(float rho0, vec3 resDu, float deltaT, float n0, float tempN)
+float MPSToolFun::ImplicitLaplacianRight(float rho0, float resDu, float deltaT, float n0, float tempN)
 {
 	return (1 - gama) * rho0 * (resDu / deltaT) - gama * (rho0 / pow(deltaT, 2)) * ((tempN - n0) / n0);
 }
@@ -182,6 +182,21 @@ mat3 MPSToolFun::GetMaterixC(vector<vec3>& R, int currentIndex, float n0)
 		}
 	}
 	res *= (1 / n0);
+	return res;
+}
+
+float MPSToolFun::ExplicitDivergence(vector<vec3>& phi, vector<vec3>& r, int currentIndex, float n0)
+{
+	float res = 0;
+	for (int i = 0; i < phi.size(); i++)
+	{
+		if (i != currentIndex)
+		{
+			res += (dot((phi[i] - phi[currentIndex]), (r[i] - r[currentIndex])) / pow(distance(r[i], r[currentIndex]), 2))
+				* WeightFun(distance(r[i], r[currentIndex]), reForDG);
+		}
+	}
+	res *= (Ds / n0);
 	return res;
 }
 
@@ -217,7 +232,7 @@ vec3 MPSToolFun::ExplicitGradient(mat3 C, vector<double>& p, vector<vec3>& r, fl
 	}
 }
 
-float MPSToolFun::DensityN(vector<vec3> r, int currentIndex)
+float MPSToolFun::DensityN(vector<vec3>& r, int currentIndex)
 {
 	float res = 0;
 	for (int i = 0; i < r.size(); i++)

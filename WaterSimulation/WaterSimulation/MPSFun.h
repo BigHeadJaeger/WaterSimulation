@@ -43,7 +43,7 @@ public:
 	//计算临时值u* (时间差，u的拉普拉斯结果，当前粒子的u)
 	vec3 TempU(float deltaT, vec3 resLU, vec3 uNow);
 	//计算隐式拉普拉斯的右端项(初始密度，u*的散度，时间差，n0，n*)
-	vec3 ImplicitLaplacianRight(float rho0, vec3 resDu, float deltaT, float n0, float tempN);
+	float ImplicitLaplacianRight(float rho0, float resDu, float deltaT, float n0, float tempN);
 	float OldImplicitLaplacianRight(float rho0, float deltaT, float n0, float tempN);
 	//获取矩阵C
 	mat3 GetMaterixC(vector<vec3>& R, int currentIndex, float n0);
@@ -75,8 +75,7 @@ public:
 	}
 
 	//显式散度
-	template<typename T>
-	T ExplicitDivergence(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0);
+	float ExplicitDivergence(vector<vec3>& phi, vector<vec3>& r, int currentIndex, float n0);
 	//显式拉普拉斯
 	template<typename T>
 	T ExplicitLaplacian(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0);
@@ -84,7 +83,7 @@ public:
 	vec3 ExplicitGradient(mat3 C, vector<double>& p, vector<vec3>& r, float n0, int currentIndex);
 
 	//MPS中密度的计算
-	float DensityN(vector<vec3> r, int currentIndex);
+	float DensityN(vector<vec3>& r, int currentIndex);
 	//根据速度量u计算新的位置
 	vec3 NewPosR(vec3 nowPos, vec3 u);
 	//计算真实的u值
@@ -93,21 +92,6 @@ public:
 	vector<double> ImplicitCalculateP(vector<vec3>& r, vector<float>& n0Array, vector<bool>& isSurface, vector<double> Right);
 };
 
-template<typename T>
-inline T MPSToolFun::ExplicitDivergence(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0)
-{
-	T res = T();
-	for (int i = 0; i < phi.size(); i++)
-	{
-		if (i != currentIndex)
-		{
-			res += (dot((phi[i] - phi[currentIndex]), (r[i] - r[currentIndex])) / pow(distance(r[i], r[currentIndex]), 2))
-				* WeightFun(distance(r[i], r[currentIndex]), reForDG);
-		}
-	}
-	res *= (Ds / n0);
-	return res;
-}
 
 template<typename T>
 inline T MPSToolFun::ExplicitLaplacian(vector<T>& phi, vector<vec3>& r, int currentIndex, float n0)
