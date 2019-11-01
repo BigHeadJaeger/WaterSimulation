@@ -6,7 +6,16 @@
 using namespace std;
 #include"Renderer.h"
 #include"MarchingCube.h"
+#include"DistributeFun.h"
 typedef OpenMesh::TriMesh_ArrayKernelT<> Mesh;
+
+//接口
+class IGetVertexDataArray
+{
+public:
+	virtual void GetVertexDataArray(vector<float>& data) = 0;
+};
+
 
 //基类Object
 class Object
@@ -75,15 +84,18 @@ class Metaball:public Object
 private:
 	MarchingCube marchingCube;
 	vector<vec3> sourcePoints;
+
+	float temp;
+	vec3 initPos;
+	int test = 0;
 public:
+	Metaball()
+	{
+		temp = 0;
+	}
+	void SetSourcePoints(vec3 firstPos, int w, int h, int d);
 	void InitBufferData()override;
 	void Update(float dt)override;
 	void Draw()override;
 };
 
-//接口
-class IGetVertexDataArray
-{
-public:
-	virtual void GetVertexDataArray(vector<float>& data) = 0;
-};

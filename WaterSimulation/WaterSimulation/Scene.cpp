@@ -28,17 +28,27 @@ void MyScene::Init()
 	
 
 	//指定物体PBR材质
-	MeshObject* cow = new MeshObject();
-	cow->SetName("cow");
-	cow->readObjFile("OBJ\\cow.obj");
-	cow->SetRenderer(SIMPLERENDER);
-	cow->InitBufferData();
-	cow->GetTransform().SetPosition(vec3(0, 0, 0));
-	cow->GetTransform().SetScaler(vec3(3.0));
-	dynamic_cast<SimpleShaderData*>(cow->GetShaderData())->SetColor(vec3(255, 0, 0));
+	//MeshObject* cow = new MeshObject();
+	//cow->SetName("cow");
+	//cow->readObjFile("OBJ\\cow.obj");
+	//cow->SetRenderer(SIMPLERENDER);
+	//cow->InitBufferData();
+	//cow->GetTransform().SetPosition(vec3(0, 0, 0));
+	//cow->GetTransform().SetScaler(vec3(3.0));
+	//dynamic_cast<SimpleShaderData*>(cow->GetShaderData())->SetColor(vec3(255, 0, 0));
 
-	objects.insert(pair<string, Object*>(cow->GetName(), cow));
+	//objects.insert(pair<string, Object*>(cow->GetName(), cow));
 
+
+	Metaball* balls = new Metaball();
+	balls->SetName("Metaball");
+	balls->SetRenderer(SIMPLERENDER);
+	balls->GetTransform().SetPosition(vec3(-0.5, -0.5, 0));
+	balls->SetSourcePoints(vec3(1, 1, 1), 2, 2, 1);
+	//balls->GetTransform().SetScaler(vec3(3.0));
+	dynamic_cast<SimpleShaderData*>(balls->GetShaderData())->SetColor(vec3(0, 0, 255));
+
+	objects.insert(pair<string, Object*>(balls->GetName(), balls));
 
 	//myBox.InitDirectBox(1, 1, 1);					//顶点、索引信息初始化
 	//myBox.InitBuffers();							//缓冲初始化

@@ -10,6 +10,13 @@ using namespace std;
 #include"DistributeFun.h"
 #include"MarchingCube.h"
 
+//粒子的建模接口(如果粒子需要进行建模之后再渲染，如metaball等)
+class IModelingParticle
+{
+public:
+	virtual void Modeling() = 0;	//参数内的都是返回值，分别为顶点信息数组 是否提供法向量 是否提供纹理坐标
+};
+
 //粒子群的基类
 class ParticleGroup:public Object
 {
@@ -69,9 +76,3 @@ public:
 };
 
 
-//粒子的建模接口(如果粒子需要进行建模之后再渲染，如metaball等)
-class IModelingParticle
-{
-public:
-	virtual void Modeling() = 0;	//参数内的都是返回值，分别为顶点信息数组 是否提供法向量 是否提供纹理坐标
-};
