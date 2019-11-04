@@ -38,14 +38,16 @@ class MPSWaterParticleGroup:public ParticleGroup,public IModelingParticle
 {
 protected:
 	//算法中粒子群体的属性
-	float l0;
-	float range;
-	float viscosity;
-	float a;
+	float l0;									//粒子的直径
+	float range;								//邻接粒子的判断依据
+	float viscosity;							//液体的粘度系数
+	float a;									//松弛系数
 	vector<MPSWaterParticle> particles;
 
 	MarchingCube* marchingCube;					//一个指针，当需要用的时候才初始化它（相当于一个组件）
 private:
+	void InitMPSTool();
+
 	void SetInitialN0();
 
 	void UpdateAdjoin(float range);
@@ -53,9 +55,9 @@ public:
 	MPSWaterParticleGroup()
 	{
 		particleNumber = 10;
-		l0 = 1;
+		l0 = 0.01;
 		range = 0.5;
-		viscosity = 1;
+		viscosity = 0.000001;
 		a = 0.75;
 
 		marchingCube = NULL;
@@ -67,8 +69,18 @@ public:
 			delete marchingCube;
 	}
 
+	void SetDiameter(float d)
+	{
+		l0 = d;
+	}
+
+	void SetViscosity(float v)
+	{
+		viscosity = v;
+	}
+
 	void InitParticles();
-	void InitMPSTool();
+
 	void Modeling() override;
 
 

@@ -13,12 +13,12 @@ float MPSToolFun::WeightFun(float dis,float re)
 	return result;
 }
 
-vec3 MPSToolFun::TempU(float deltaT, vec3 resLU, vec3 uNow)
+vec3 MPSToolFun::TempU(vec3 resLU, vec3 uNow)
 {
 	return deltaT * (viscosity * resLU + vG) + uNow;
 }
 
-vec3 MPSToolFun::CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, float tho)
+vec3 MPSToolFun::CalculateU(vec3 resLU, vec3 resGP, vec3 uNow, float tho)
 {
 	return deltaT * ((-1 / tho) * resGP + viscosity * resLU + vG) + uNow;
 }
@@ -160,12 +160,12 @@ bool MPSToolFun::SolveEquation(vector<double>& a, vector<int>& ia, vector<int>& 
 	return true;
 }
 
-float MPSToolFun::ImplicitLaplacianRight(float rho0, float resDu, float deltaT, float n0, float tempN)
+float MPSToolFun::ImplicitLaplacianRight(float rho0, float resDu, float n0, float tempN)
 {
 	return (1 - gama) * rho0 * (resDu / deltaT) - gama * (rho0 / pow(deltaT, 2)) * ((tempN - n0) / n0);
 }
 
-float MPSToolFun::OldImplicitLaplacianRight(float rho0, float deltaT, float n0, float tempN)
+float MPSToolFun::OldImplicitLaplacianRight(float rho0, float n0, float tempN)
 {
 	return (rho0 / pow(deltaT, 2)) * ((n0 - tempN) / n0);
 }

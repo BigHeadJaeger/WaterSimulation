@@ -2,6 +2,14 @@
 
 void MPSWaterParticleGroup::InitParticles()
 {
+	vec3 offset = vec3(0.5);
+	int width, height, depth;
+	width = height = depth = 10;
+	float highest = 0;
+	if (offset.y > 0)
+		highest = transformation.position.y * height * offset.y;
+	else
+		highest = transformation.position.y;
 	vector<vec3> positions;
 	particleNumber = CubeDistribute(positions, transformation.position, vec3(0.5), 10, 10, 10);
 	for (int i = 0; i < particleNumber; i++)
@@ -10,6 +18,9 @@ void MPSWaterParticleGroup::InitParticles()
 		MPSWaterParticle R;
 		//此处指定粒子属性 位置
 		R.position = positions[i];
+		//如果这个粒子在最上面则标记为表面粒子
+		if (positions[i].y == highest)
+			R.isSurface = true;
 		R.index = i;
 		particles.push_back(R);
 	}
@@ -17,7 +28,10 @@ void MPSWaterParticleGroup::InitParticles()
 	UpdateAdjoin(range);
 	//设置每一个粒子的初始密度
 	SetInitialN0();
+	//初始化MPS工具
+	InitMPSTool();
 
+	//此处计算所有粒子的初始压力
 
 }
 
@@ -26,6 +40,7 @@ void MPSWaterParticleGroup::InitMPSTool()
 	MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
 	mpsTool->SetRe(l0);
 	mpsTool->SetViscosity(viscosity);
+	mpsTool->SetDeltaT(0.01);
 }
 
 void MPSWaterParticleGroup::Modeling()
@@ -56,10 +71,6 @@ void MPSWaterParticleGroup::SetInitialN0()
 	}
 	for (int i = 0; i < particles.size(); i++)
 	{
-		//for (int j = 0; j < particles[i].adjoinParticleIndex.size(); j++)
-		//{
-		//	neighborPos.push_back(particles[particles[i].adjoinParticleIndex[j]].position);
-		//}
 		particles[i].n0 = tool->DensityN(posArray, i);
 	}
 
@@ -85,6 +96,9 @@ void MPSWaterParticleGroup::UpdateAdjoin(float range)
 
 void MPSWaterParticleGroup::Update(float dt)
 {
+	//每一帧的计算需要先更新一下邻接关系
+	UpdateAdjoin(range);
+
 	MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
 	//每一帧的主要算法流程遍历每一个粒子
 
@@ -98,8 +112,8 @@ void MPSWaterParticleGroup::Update(float dt)
 	
 	vector<vec3> posArray;					//记录k时刻所有粒子的位置
 	vector<vec3> uArray;					//记录k时刻所有粒子的速度
-	vector<vec3> tempUArray;				//记录k+1时刻所有粒子的u*
-	vector<vec3> tempPosArray;				//记录k+1时刻所有粒子的r*
+	vector<vec3> tempUArray;				//记录忽略压力项后k+1时刻所有粒子的u*
+	vector<vec3> tempPosArray;				//记录忽略压力项后k+1时刻所有粒子的r*
 
 	//1.2 计算隐式的P
 	vector<bool> surfaceJudgeArray;			//记录粒子的表面判断
@@ -114,17 +128,17 @@ void MPSWaterParticleGroup::Update(float dt)
 	for (int i = 0; i < particles.size(); i++)
 	{
 		//计算临时速度u* 并更新临时位置r*
-		vec3 tempU = mpsTool->TempU(dt, mpsTool->ExplicitLaplacian(uArray, posArray, i, particles[i].n0), particles[i].position);
+		vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray, posArray, i, particles[i].n0), particles[i].position);
 		tempUArray.push_back(tempU);
 
-		vec3 tempPos = particles[i].position + tempU;
+		vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();;
 		tempPosArray.push_back(tempPos);
 	}
 	//用临时速度和临时位置计算每个粒子对应的右端项
 	for (int i = 0; i < particles.size(); i++)
 	{
 		float resDivergence = mpsTool->ExplicitDivergence(tempUArray, tempPosArray, i, particles[i].n0);
-		float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, dt, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
+		float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
 		Right.push_back(resRight);
 
 		//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率
@@ -143,13 +157,13 @@ void MPSWaterParticleGroup::Update(float dt)
 		mat3 C = mpsTool->GetMaterixC(posArray, i, particles[i].n0);
 		vec3 v1 = mpsTool->ExplicitGradient(C, resP, posArray, particles[i].n0, i);			//计算每个粒子的显式梯度
 		vec3 resLU = mpsTool->ExplicitLaplacian(uArray, posArray, i, particles[i].n0);
-		particles[i].speed = mpsTool->CalculateU(dt, resLU, v1, particles[i].speed, mpsTool->DensityN(posArray, i));
+		particles[i].speed = mpsTool->CalculateU(resLU, v1, particles[i].speed, mpsTool->DensityN(posArray, i));
 	}
 
 	//更新位置
 	for (int i = 0; i < particles.size(); i++)
 	{
-		particles[i].position += particles[i].speed;
+		particles[i].position += particles[i].speed * mpsTool->GetDeltaT();
 	}
 
 	//将计算好的位置点进行建模

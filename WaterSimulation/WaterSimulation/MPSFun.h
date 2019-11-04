@@ -21,6 +21,8 @@ private:
 	float reForL;			//计算拉普拉斯的re
 	float viscosity;		//粘度系数
 	float gama;				//
+	float deltaT;			//时间间隔直接给定，而不是按照每帧的间隔来确定
+
 
 	vec3 vG;				//重力加速度的向量形式
 
@@ -29,7 +31,7 @@ private:
 		Ds = 3;
 		reForDG = 0;
 		reForL = 0;
-		viscosity = 0;
+		viscosity = 0.000001;
 		gama = 0.01;
 		vG = vec3(0, -9.8, 0);
 	}
@@ -41,10 +43,10 @@ public:
 	//计算权重的方程
 	float WeightFun(float dis, float re);
 	//计算临时值u* (时间差，u的拉普拉斯结果，当前粒子的u)
-	vec3 TempU(float deltaT, vec3 resLU, vec3 uNow);
+	vec3 TempU(vec3 resLU, vec3 uNow);
 	//计算隐式拉普拉斯的右端项(初始密度，u*的散度，时间差，n0，n*)
-	float ImplicitLaplacianRight(float rho0, float resDu, float deltaT, float n0, float tempN);
-	float OldImplicitLaplacianRight(float rho0, float deltaT, float n0, float tempN);
+	float ImplicitLaplacianRight(float rho0, float resDu, float n0, float tempN);
+	float OldImplicitLaplacianRight(float rho0, float n0, float tempN);
 	//获取矩阵C
 	mat3 GetMaterixC(vector<vec3>& R, int currentIndex, float n0);
 
@@ -74,6 +76,16 @@ public:
 		viscosity = v;
 	}
 
+	void SetDeltaT(float dt)
+	{
+		deltaT = dt;
+	}
+
+	float GetDeltaT()
+	{
+		return deltaT;
+	}
+
 	//显式散度
 	float ExplicitDivergence(vector<vec3>& phi, vector<vec3>& r, int currentIndex, float n0);
 	//显式拉普拉斯
@@ -87,7 +99,7 @@ public:
 	//根据速度量u计算新的位置
 	vec3 NewPosR(vec3 nowPos, vec3 u);
 	//计算真实的u值
-	vec3 CalculateU(float deltaT, vec3 resLU, vec3 resGP, vec3 uNow, float tho);
+	vec3 CalculateU(vec3 resLU, vec3 resGP, vec3 uNow, float tho);
 	//隐式计算P（解稀疏方程组）
 	vector<double> ImplicitCalculateP(vector<vec3>& r, vector<float>& n0Array, vector<bool>& isSurface, vector<double> Right);
 };
