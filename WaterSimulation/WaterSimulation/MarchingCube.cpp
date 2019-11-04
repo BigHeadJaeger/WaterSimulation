@@ -9,7 +9,7 @@ GLfloat MarchingCube::Sample(GLfloat fX, GLfloat fY, GLfloat fZ, float r)
 		fDx = fX - (*sourceData)[i].x;
 		fDy = fY - (*sourceData)[i].y;
 		fDz = fZ - (*sourceData)[i].z;
-		result += r / (fDx * fDx + fDy * fDy + fDz * fDz);			//1为球的半径的平方，当前点在球外时，这个式子返回值大于1
+		result += r*r / (fDx * fDx + fDy * fDy + fDz * fDz);			//1为球的半径的平方，当前点在球外时，这个式子返回值大于1
 	}
 
 	return result;

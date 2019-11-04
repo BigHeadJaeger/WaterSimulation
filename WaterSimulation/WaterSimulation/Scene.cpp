@@ -45,7 +45,7 @@ void MyScene::Init()
 	balls->SetRenderer(SIMPLERENDER);
 	balls->GetTransform().SetPosition(vec3(-0, -0, 0));
 	balls->SetSourcePoints(vec3(0.1), 2, 1, 2);
-	balls->SetRadius(0.05);
+	balls->SetRadius(0.005);
 	//balls->GetTransform().SetScaler(vec3(3.0));
 	dynamic_cast<SimpleShaderData*>(balls->GetShaderData())->SetColor(vec3(0, 0, 255));
 

@@ -53,7 +53,7 @@ public:
 		fContainerSize = 0.6;
 		iDataSetSize = 30;
 		fStepSize = fContainerSize / iDataSetSize;
-		fTargetValue = 50;
+		fTargetValue = 0.02;
 		sourceData = NULL;
 	}
 
