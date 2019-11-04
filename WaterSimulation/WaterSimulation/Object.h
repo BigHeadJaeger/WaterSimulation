@@ -87,13 +87,17 @@ private:
 
 	float temp;
 	vec3 initPos;
-	int test = 0;
 public:
 	Metaball()
 	{
 		temp = 0;
 	}
 	void SetSourcePoints(vec3 firstPos, int w, int h, int d);
+	void SetRadius(float r)
+	{
+		marchingCube.radius = r;
+	}
+
 	void InitBufferData()override;
 	void Update(float dt)override;
 	void Draw()override;

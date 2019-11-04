@@ -65,7 +65,6 @@ void MeshObject::InitBufferData()
 
 void MeshObject::Update(float dt)
 {
-	
 	shaderData->UpdateMatrix(transformation);
 }
 
@@ -98,7 +97,7 @@ void Object::SetRenderer(RENDERERTYPE type)
 void Metaball::SetSourcePoints(vec3 firstPos, int w, int h, int d)
 {
 	initPos = firstPos;
-	CubeDistribute(sourcePoints, firstPos, vec3(0.5, 0.5, 0.5), w, h, d);
+	CubeDistribute(sourcePoints, firstPos, vec3(0.2), w, h, d);
 }
 
 void Metaball::InitBufferData()
@@ -108,6 +107,7 @@ void Metaball::InitBufferData()
 	bool provideNormal;
 	bool provideTex;
 	marchingCube.GetMeshData(sourcePoints, verticesInfo, provideNormal, provideTex);
+	//当ball运动都超出最开始的定的边界时就不会有顶点信息产生
 	if (verticesInfo.size() != 0)
 	{
 		pointCount = verticesInfo.size() / 8;
@@ -122,7 +122,6 @@ void Metaball::InitBufferData()
 void Metaball::Update(float dt)
 {
 	cout << 1 / dt << endl;
-	test += 1;
 	temp += dt;
 	//对sourcePoint进行坐标变化
 	float fOffset = 1.0 + sinf(temp);

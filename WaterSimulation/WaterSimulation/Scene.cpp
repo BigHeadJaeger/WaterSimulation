@@ -19,7 +19,7 @@ void MyScene::Init()
 
 	//初始化主相机
 	//mainCamera = new Camera();
-	MainCamera::GetInstance()->Init(vec3(0, 2, 4), vec3(0, 0, 0));
+	MainCamera::GetInstance()->Init(vec3(0, 2, 1), vec3(0, 0, 0));
 
 	//SetDrawMode(drawMode.isLine, false);
 	drawMode.isLine = false;
@@ -43,8 +43,9 @@ void MyScene::Init()
 	Metaball* balls = new Metaball();
 	balls->SetName("Metaball");
 	balls->SetRenderer(SIMPLERENDER);
-	balls->GetTransform().SetPosition(vec3(-0.5, -0.5, 0));
-	balls->SetSourcePoints(vec3(1, 1, 1), 2, 2, 1);
+	balls->GetTransform().SetPosition(vec3(-0, -0, 0));
+	balls->SetSourcePoints(vec3(0.1), 2, 1, 2);
+	balls->SetRadius(0.05);
 	//balls->GetTransform().SetScaler(vec3(3.0));
 	dynamic_cast<SimpleShaderData*>(balls->GetShaderData())->SetColor(vec3(0, 0, 255));
 

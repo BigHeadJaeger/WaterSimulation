@@ -1,15 +1,15 @@
 #include "MarchingCube.h"
 
-GLfloat MarchingCube::Sample(GLfloat fX, GLfloat fY, GLfloat fZ)
+GLfloat MarchingCube::Sample(GLfloat fX, GLfloat fY, GLfloat fZ, float r)
 {
 	double result = 0.0;
 	for (int i = 0; i < sourceData->size(); i++)
 	{
-		double fDx, fDy, fDz;
+		float fDx, fDy, fDz;
 		fDx = fX - (*sourceData)[i].x;
 		fDy = fY - (*sourceData)[i].y;
 		fDz = fZ - (*sourceData)[i].z;
-		result += 1 / (fDx * fDx + fDy * fDy + fDz * fDz);			//1为球的半径的平方，当前点在球外时，这个式子返回值大于1
+		result += r / (fDx * fDx + fDy * fDy + fDz * fDz);			//1为球的半径的平方，当前点在球外时，这个式子返回值大于1
 	}
 
 	return result;
@@ -29,7 +29,7 @@ void MarchingCube::MarchCube(GLfloat fX, GLfloat fY, GLfloat fZ, GLfloat fScale,
 	{
 		afCubeValue[iVertex] = Sample(fX + a2fVertexOffset[iVertex][0] * fScale,			//遍历传进来的点(fx,fy,fy)是立方体的角坐标，
 			fY + a2fVertexOffset[iVertex][1] * fScale,										//此处通过换算得到当前小立方体的8个顶点
-			fZ + a2fVertexOffset[iVertex][2] * fScale);
+			fZ + a2fVertexOffset[iVertex][2] * fScale, radius);
 	}
 
 	//Find which vertices are inside of the surface and which are outside
@@ -106,9 +106,9 @@ GLfloat MarchingCube::GetOffset(GLfloat fValue1, GLfloat fValue2, GLfloat fValue
 
 void MarchingCube::GetNormal(vec3& rfNormal, GLfloat fX, GLfloat fY, GLfloat fZ)
 {
-	rfNormal.x = Sample(fX - 0.01, fY, fZ) - Sample(fX + 0.01, fY, fZ);
-	rfNormal.y = Sample(fX, fY - 0.01, fZ) - Sample(fX, fY + 0.01, fZ);
-	rfNormal.z = Sample(fX, fY, fZ - 0.01) - Sample(fX, fY, fZ + 0.01);
+	rfNormal.x = Sample(fX - 0.01, fY, fZ, radius) - Sample(fX + 0.01, fY, fZ, radius);
+	rfNormal.y = Sample(fX, fY - 0.01, fZ, radius) - Sample(fX, fY + 0.01, fZ, radius);
+	rfNormal.z = Sample(fX, fY, fZ - 0.01, radius) - Sample(fX, fY, fZ + 0.01, radius);
 	NormalizeVector(rfNormal, rfNormal);
 }
 

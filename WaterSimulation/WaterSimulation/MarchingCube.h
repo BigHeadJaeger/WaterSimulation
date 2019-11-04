@@ -35,7 +35,7 @@ class MarchingCube
 private:
 	vector<vec3>* sourceData;
 private:
-	GLfloat Sample(GLfloat fX, GLfloat fY, GLfloat fZ);
+	GLfloat Sample(GLfloat fX, GLfloat fY, GLfloat fZ, float r);
 	void MarchCube(GLfloat fX, GLfloat fY, GLfloat fZ, GLfloat fScale, vector<float>& verticesInfo);
 	GLfloat GetOffset(GLfloat fValue1, GLfloat fValue2, GLfloat fValueDesired);
 	void GetNormal(vec3& rfNormal, GLfloat fX, GLfloat fY, GLfloat fZ);
@@ -46,12 +46,14 @@ public:
 	GLfloat   fStepSize;
 	GLfloat   fTargetValue;
 
+	float  radius;			//ÇòÌåµÄ°ë¾¶
+
 	MarchingCube()
 	{
-		fContainerSize = 2;
-		iDataSetSize = 40;
+		fContainerSize = 0.6;
+		iDataSetSize = 30;
 		fStepSize = fContainerSize / iDataSetSize;
-		fTargetValue = 60;
+		fTargetValue = 50;
 		sourceData = NULL;
 	}
 
