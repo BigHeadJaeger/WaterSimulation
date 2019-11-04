@@ -32,7 +32,54 @@ void MPSWaterParticleGroup::InitParticles()
 	InitMPSTool();
 
 	//此处计算所有粒子的初始压力
+	MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
+	vector<double> Right;					//存储每一个粒子的右端项
 
+	vector<vec3> posArray;					//记录k时刻所有粒子的位置
+	vector<vec3> uArray;					//记录k时刻所有粒子的速度
+	vector<vec3> tempUArray;				//记录忽略压力项后k+1时刻所有粒子的u*
+	vector<vec3> tempPosArray;				//记录忽略压力项后k+1时刻所有粒子的r*
+
+	//1.2 计算隐式的P
+	vector<bool> surfaceJudgeArray;			//记录粒子的表面判断
+	vector<float> n0Array;					//记录粒子的初始密度
+
+	for (int i = 0; i < particles.size(); i++)
+	{
+		posArray.push_back(particles[i].position);
+		uArray.push_back(particles[i].speed);
+	}
+	//遍历粒子 获取临时的速度和位置
+	for (int i = 0; i < particles.size(); i++)
+	{
+		//计算临时速度u* 并更新临时位置r*
+		vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray, posArray, i, particles[i].n0), particles[i].position);
+		tempUArray.push_back(tempU);
+
+		vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();
+		tempPosArray.push_back(tempPos);
+	}
+	//用临时速度和临时位置计算每个粒子对应的右端项
+	for (int i = 0; i < particles.size(); i++)
+	{
+		float resDivergence = mpsTool->ExplicitDivergence(tempUArray, tempPosArray, i, particles[i].n0);
+		//初始化的时候用旧的右端项方法
+		float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
+		//float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
+		Right.push_back(resRight);
+
+		//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率，初始化的时候不需要再进行一次表面检测
+		surfaceJudgeArray.push_back(particles[i].isSurface);
+		n0Array.push_back(particles[i].n0);
+	}
+
+	//1.2.2 解一个泊松方程
+	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, n0Array, surfaceJudgeArray, Right);
+
+	for (int i = 0; i < particles.size(); i++)
+	{
+		particles[i].pressure = resP[i];
+	}
 }
 
 void MPSWaterParticleGroup::InitMPSTool()
@@ -160,9 +207,10 @@ void MPSWaterParticleGroup::Update(float dt)
 		particles[i].speed = mpsTool->CalculateU(resLU, v1, particles[i].speed, mpsTool->DensityN(posArray, i));
 	}
 
-	//更新位置
+	//更新位置和压力
 	for (int i = 0; i < particles.size(); i++)
 	{
+		particles[i].pressure = resP[i];
 		particles[i].position += particles[i].speed * mpsTool->GetDeltaT();
 	}
 

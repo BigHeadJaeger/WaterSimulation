@@ -46,11 +46,14 @@ protected:
 
 	MarchingCube* marchingCube;					//一个指针，当需要用的时候才初始化它（相当于一个组件）
 private:
+	//用当前粒子群的一些参数初始化mps工具
 	void InitMPSTool();
-
+	//设置每一个粒子的初始密度
 	void SetInitialN0();
-
+	//更新粒子的邻接关系
 	void UpdateAdjoin(float range);
+	//粒子群的建模接口实现
+	void Modeling() override;
 public:
 	MPSWaterParticleGroup()
 	{
@@ -69,19 +72,21 @@ public:
 			delete marchingCube;
 	}
 
+	//设置粒子的半径
 	void SetDiameter(float d)
 	{
 		l0 = d;
 	}
-
+	//设置粘度系数
 	void SetViscosity(float v)
 	{
 		viscosity = v;
 	}
 
+	//初始化粒子群的属性
 	void InitParticles();
 
-	void Modeling() override;
+
 
 
 	void Update(float dt) override;
