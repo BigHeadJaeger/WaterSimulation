@@ -2,16 +2,19 @@
 
 void MPSWaterParticleGroup::InitParticles()
 {
-	vec3 offset = vec3(0.5);
+	//初始化MPS工具
+	InitMPSTool();
+
+	vec3 offset = vec3(0.02);
 	int width, height, depth;
 	width = height = depth = 10;
 	float highest = 0;
 	if (offset.y > 0)
-		highest = transformation.position.y * height * offset.y;
+		highest = transformation.position.y + (height - 1) * offset.y;
 	else
 		highest = transformation.position.y;
 	vector<vec3> positions;
-	particleNumber = CubeDistribute(positions, transformation.position, vec3(0.5), 10, 10, 10);
+	particleNumber = CubeDistribute(positions, transformation.position, offset, width, height, depth);
 	for (int i = 0; i < particleNumber; i++)
 	{
 		//初始化当前粒子并push进去
@@ -28,8 +31,7 @@ void MPSWaterParticleGroup::InitParticles()
 	UpdateAdjoin(range);
 	//设置每一个粒子的初始密度
 	SetInitialN0();
-	//初始化MPS工具
-	InitMPSTool();
+
 
 	//此处计算所有粒子的初始压力
 	MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
@@ -216,4 +218,13 @@ void MPSWaterParticleGroup::Update(float dt)
 
 	//将计算好的位置点进行建模
 	//Modeling();
+}
+
+void MPSWaterParticleGroup::Draw()
+{
+
+}
+
+void MPSWaterParticleGroup::InitBufferData()
+{
 }

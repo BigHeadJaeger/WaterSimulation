@@ -72,10 +72,12 @@ public:
 			delete marchingCube;
 	}
 
-	//设置粒子的半径
+	//设置粒子的直径
 	void SetDiameter(float d)
 	{
 		l0 = d;
+		//通过直径确定粒子之间的影响范围
+		range = 2.1 * l0;
 	}
 	//设置粘度系数
 	void SetViscosity(float v)
@@ -86,10 +88,11 @@ public:
 	//初始化粒子群的属性
 	void InitParticles();
 
-
-
-
 	void Update(float dt) override;
+
+	void Draw() override;
+
+	void InitBufferData() override;
 };
 
 

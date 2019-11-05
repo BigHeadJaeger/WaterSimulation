@@ -2,6 +2,7 @@
 #include<map>
 using namespace std;
 #include"Object.h"
+#include"ParticleGroup.h"
 #include"Interaction.h"
 
 struct DrawMode

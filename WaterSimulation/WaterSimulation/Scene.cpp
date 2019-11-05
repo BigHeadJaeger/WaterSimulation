@@ -36,20 +36,29 @@ void MyScene::Init()
 	//cow->GetTransform().SetPosition(vec3(0, 0, 0));
 	//cow->GetTransform().SetScaler(vec3(3.0));
 	//dynamic_cast<SimpleShaderData*>(cow->GetShaderData())->SetColor(vec3(255, 0, 0));
+	//objects.insert(pair<string, Object*>(cow->GetName(), cow))
 
-	//objects.insert(pair<string, Object*>(cow->GetName(), cow));
+	MPSWaterParticleGroup* water = new MPSWaterParticleGroup();
+	water->SetName("water");
+	water->SetRenderer(SIMPLERENDER);
+	water->GetTransform().SetPosition(vec3(0));
+	water->SetDiameter(0.01);
+	water->SetViscosity(0.000001);
+	water->InitParticles();
+	dynamic_cast<SimpleShaderData*>(water->GetShaderData())->SetColor(vec3(0, 0, 200));
+	objects.insert(pair<string, Object*>(water->GetName(), water));
 
 
-	Metaball* balls = new Metaball();
-	balls->SetName("Metaball");
-	balls->SetRenderer(SIMPLERENDER);
-	balls->GetTransform().SetPosition(vec3(-0, -0, 0));
-	balls->SetSourcePoints(vec3(0.1), 2, 1, 2);
-	balls->SetRadius(0.005);
-	//balls->GetTransform().SetScaler(vec3(3.0));
-	dynamic_cast<SimpleShaderData*>(balls->GetShaderData())->SetColor(vec3(0, 0, 255));
+	//Metaball* balls = new Metaball();
+	//balls->SetName("Metaball");
+	//balls->SetRenderer(SIMPLERENDER);
+	//balls->GetTransform().SetPosition(vec3(-0, -0, 0));
+	//balls->SetSourcePoints(vec3(0.1), 2, 1, 2);
+	//balls->SetRadius(0.005);
+	////balls->GetTransform().SetScaler(vec3(3.0));
+	//dynamic_cast<SimpleShaderData*>(balls->GetShaderData())->SetColor(vec3(0, 0, 255));
+	//objects.insert(pair<string, Object*>(balls->GetName(), balls));
 
-	objects.insert(pair<string, Object*>(balls->GetName(), balls));
 
 	//myBox.InitDirectBox(1, 1, 1);					//顶点、索引信息初始化
 	//myBox.InitBuffers();							//缓冲初始化

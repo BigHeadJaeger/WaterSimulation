@@ -53,10 +53,10 @@ vector<double> MPSToolFun::ImplicitCalculateP(vector<vec3>& r, vector<float>& n0
 			{
 				double w = WeightFun(distance(r[j], r[i]), reForL);
 				coeffArray[j] = w * con;
-				currentRowCoeff += coeffArray[j];
+				currentRowCoeff -= coeffArray[j];
 			}
 		}
-		coeffArray[i] = -currentRowCoeff;
+		coeffArray[i] = currentRowCoeff;
 		//当前行的系数都计算完了，按照mkl计算格式添加到相应数组中
 		for (int k = 0; k < coeffArray.size(); k++)
 		{
