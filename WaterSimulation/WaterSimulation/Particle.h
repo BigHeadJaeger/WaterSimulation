@@ -17,6 +17,7 @@ public:
 	vec3 speed;									//粒子的速度向量
 	float pressure;								//受到的压力
 	float n0;									//初始的密度值
+	float tho;									//当前的密度
 	bool isSurface;								//粒子是否为表面
 
 	int index;									//记录自身的索引值
@@ -28,6 +29,8 @@ public:
 		position = vec3(0);
 		speed = vec3(0);
 		pressure = 0;
+		n0 = 0;
+		tho = 0;
 		life = 0;
 		size = 0;
 		index = -1;
@@ -43,5 +46,5 @@ public:
 		index = -1;
 	}
 
-	void SurfaceAdjudge(float a, float tho, float g, float l0);
+	void SurfaceAdjudge(float a, float g, float l0);
 };

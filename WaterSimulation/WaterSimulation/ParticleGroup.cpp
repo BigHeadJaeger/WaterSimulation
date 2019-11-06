@@ -182,6 +182,9 @@ void MPSWaterParticleGroup::Update(float dt)
 
 		vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();;
 		tempPosArray.push_back(tempPos);
+
+		//用现时刻的位置更新一下粒子的密度
+		particles[i].tho = mpsTool->DensityN(posArray, i);
 	}
 	//用临时速度和临时位置计算每个粒子对应的右端项
 	for (int i = 0; i < particles.size(); i++)
@@ -191,7 +194,7 @@ void MPSWaterParticleGroup::Update(float dt)
 		Right.push_back(resRight);
 
 		//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率
-		particles[i].SurfaceAdjudge(a, mpsTool->DensityN(posArray, i), g, l0);
+		particles[i].SurfaceAdjudge(a, g, l0);
 		surfaceJudgeArray.push_back(particles[i].isSurface);
 		n0Array.push_back(particles[i].n0);
 	}
@@ -206,7 +209,7 @@ void MPSWaterParticleGroup::Update(float dt)
 		mat3 C = mpsTool->GetMaterixC(posArray, i, particles[i].n0);
 		vec3 v1 = mpsTool->ExplicitGradient(C, resP, posArray, particles[i].n0, i);			//计算每个粒子的显式梯度
 		vec3 resLU = mpsTool->ExplicitLaplacian(uArray, posArray, i, particles[i].n0);
-		particles[i].speed = mpsTool->CalculateU(resLU, v1, particles[i].speed, mpsTool->DensityN(posArray, i));
+		particles[i].speed = mpsTool->CalculateU(resLU, v1, particles[i].speed, particles[i].tho);
 	}
 
 	//更新位置和压力
