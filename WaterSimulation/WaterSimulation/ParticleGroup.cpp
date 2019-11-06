@@ -5,7 +5,7 @@ void MPSWaterParticleGroup::InitParticles()
 	//初始化MPS工具
 	InitMPSTool();
 
-	vec3 offset = vec3(0.02);
+	vec3 offset = vec3(0.01);
 	int width, height, depth;
 	width = height = depth = 10;
 	float highest = 0;
@@ -64,7 +64,7 @@ void MPSWaterParticleGroup::InitParticles()
 	//用临时速度和临时位置计算每个粒子对应的右端项
 	for (int i = 0; i < particles.size(); i++)
 	{
-		float resDivergence = mpsTool->ExplicitDivergence(tempUArray, tempPosArray, i, particles[i].n0);
+		//float resDivergence = mpsTool->ExplicitDivergence(tempUArray, tempPosArray, i, particles[i].n0);
 		//初始化的时候用旧的右端项方法
 		float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
 		//float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
