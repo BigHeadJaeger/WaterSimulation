@@ -42,7 +42,11 @@ protected:
 	float range;								//邻接粒子的判断依据
 	float viscosity;							//液体的粘度系数
 	float a;									//松弛系数
-	vector<MPSWaterParticle> particles;
+	int particleWallNum;						//墙粒子的个数
+	int particleDummyNum;						//dummy的粒子个数
+	int particleTotalNum;						//所有粒子的总和 
+
+	vector<MPSWaterParticle> particles;			//按照粒子 wall dummy的顺序依次放入
 
 	MarchingCube* marchingCube;					//一个指针，当需要用的时候才初始化它（相当于一个组件）
 private:

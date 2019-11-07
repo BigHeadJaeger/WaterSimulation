@@ -29,7 +29,7 @@ void MPSWaterParticleGroup::InitParticles()
 		R.index = i;
 		particles.push_back(R);
 	}
-	particleNumber += n;
+	particleNumber = n;
 
 	//还需要初始化粒子墙以及dummy wall	(可以看成再创建1+2层空心无盖的cube)   ps:要确保容器包围住所有的粒子
 	//wall
@@ -46,7 +46,7 @@ void MPSWaterParticleGroup::InitParticles()
 		R.isWall = true;
 		R.index = i + particleNumber;				//加上之前已经有的索引偏移量
 	}
-	particleNumber += n;
+	particleWallNum = n;
 	//dummy
 	int dummyWidth = containerWidth + 2;
 	int dummyHeight = containerHeight;
@@ -65,9 +65,11 @@ void MPSWaterParticleGroup::InitParticles()
 		MPSWaterParticle R;
 		R.position = positions[i];
 		R.isDummy = true;
-		R.index = i + particleNumber;				//加上之前已经有的索引偏移量
+		R.index = i + particleNumber + particleWallNum;				//加上之前已经有的索引偏移量
 	}
-	particleNumber += n;
+	particleDummyNum = n;
+
+	particleTotalNum = particleNumber + particleDummyNum + particleWallNum;
 
 	//更新邻接点关系
 	UpdateAdjoin(range);
@@ -80,9 +82,13 @@ void MPSWaterParticleGroup::InitParticles()
 	vector<double> Right;					//存储每一个粒子的右端项
 
 	vector<vec3> posArray;					//记录k时刻所有粒子的位置
+	vector<vec3> posArray1;					//记录k时刻除去dummy的粒子的位置
 	vector<vec3> uArray;					//记录k时刻所有粒子的速度
+	vector<vec3> uArray1;					//记录k时刻除去dummy的粒子的速度
 	vector<vec3> tempUArray;				//记录忽略压力项后k+1时刻所有粒子的u*
+	vector<vec3> tempUArray1;				//记录忽略压力项后k+1时刻除去dummy的粒子的u*
 	vector<vec3> tempPosArray;				//记录忽略压力项后k+1时刻所有粒子的r*
+	vector<vec3> tempPosArray1;				//记录忽略压力项后k+1时刻除去dummy的粒子的r*
 
 	//1.2 计算隐式的P
 	vector<bool> surfaceJudgeArray;			//记录粒子的表面判断
@@ -92,21 +98,56 @@ void MPSWaterParticleGroup::InitParticles()
 	{
 		posArray.push_back(particles[i].position);
 		uArray.push_back(particles[i].speed);
+		if (i < (particleNumber + particleWallNum))
+		{
+			posArray1.push_back(particles[i].position);
+			uArray1.push_back(particles[i].speed);
+		}
 	}
-	//遍历粒子 获取临时的速度和位置
-	for (int i = 0; i < particles.size(); i++)
+	//遍历粒子 获取临时的速度和位置（只有普通粒子需要计算，且计算的时候不需要dummy的相关数据,而wall粒子的速度和位置都不变）
+	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
-		//计算临时速度u* 并更新临时位置r*
-		vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray, posArray, i, particles[i].n0), particles[i].position);
-		tempUArray.push_back(tempU);
+		if (i < particleNumber)
+		{
+			//计算临时速度u* 并更新临时位置r*
+			vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray1, posArray1, i, particles[i].n0), particles[i].position);
+			tempUArray1.push_back(tempU);
 
-		vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();
-		tempPosArray.push_back(tempPos);
+			vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();
+			tempPosArray1.push_back(tempPos);
+		}
+		else
+		{
+			tempUArray1.push_back(vec3(0));						//wall粒子速度一直为0
+			tempPosArray1.push_back(particles[i].position);		//wall粒子位置保持不变
+		}
 	}
-	//用临时速度和临时位置计算每个粒子对应的右端项
-	for (int i = 0; i < particles.size(); i++)
+	//为全部粒子临时值集合赋值
+	tempUArray = tempUArray1;
+	tempPosArray = tempPosArray1;
+	for (int i = (particleNumber + particleWallNum); i < particleDummyNum; i++)
 	{
-		//float resDivergence = mpsTool->ExplicitDivergence(tempUArray, tempPosArray, i, particles[i].n0);
+		tempUArray.push_back(vec3(0));
+		tempPosArray.push_back(particles[i].position);
+	}
+
+
+	//用临时速度和临时位置计算每个粒子对应的右端项
+	for (int i = 0; i < (particleNumber + particleWallNum); i++)
+	{
+		//普通粒子和wall粒子的右端项计算需要不同的粒子集合
+		if (i < particleNumber)
+		{
+			//普通粒子不需要dummy
+			float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray1, i));
+			Right.push_back(resRight);
+		}
+		else
+		{
+			//wall 粒子用全部粒子集合
+			float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
+			Right.push_back(resRight);
+		}
 		//初始化的时候用旧的右端项方法
 		float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
 		//float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
@@ -117,10 +158,10 @@ void MPSWaterParticleGroup::InitParticles()
 		n0Array.push_back(particles[i].n0);
 	}
 
-	//1.2.2 解一个泊松方程
-	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, n0Array, surfaceJudgeArray, Right);
+	//1.2.2 解一个泊松方程(此时的计算排除dummy)
+	vector<double> resP = mpsTool->ImplicitCalculateP(posArray1, n0Array, surfaceJudgeArray, Right);
 
-	for (int i = 0; i < particles.size(); i++)
+	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
 		particles[i].pressure = resP[i];
 	}
@@ -155,30 +196,58 @@ void MPSWaterParticleGroup::Modeling()
 void MPSWaterParticleGroup::SetInitialN0()
 {
 	MPSToolFun* tool = MPSToolFun::GetMPSTool();
-	vector<vec3> posArray;
+	vector<vec3> posArray;								//所有粒子的位置集合，主要是wall粒子需要
+	vector<vec3> posArray1;								//去除dummy粒子的集合，用于普通粒子
 	for (int i = 0; i < particles.size(); i++)
 	{
 		posArray.push_back(particles[i].position);
+		if (i < (particleNumber + particleWallNum))
+			posArray1.push_back(particles[i].position);
 	}
+
+	//只需要计算普通粒子和墙粒子的密度
 	for (int i = 0; i < particles.size(); i++)
 	{
-		particles[i].n0 = tool->DensityN(posArray, i);
+		if (i < particleNumber)			//普通粒子
+			particles[i].n0 = tool->DensityN(posArray1, i);
+		else if (i < (particleNumber + particleWallNum))		//墙粒子
+			particles[i].n0 = tool->DensityN(posArray, i);
 	}
 
 }
 
 void MPSWaterParticleGroup::UpdateAdjoin(float range)
 {
-	for (int i = 0; i < particles.size(); i++)
+	int num1 = particleNumber + particleWallNum;
+	int num2 = particles.size();
+	//邻接粒子中普通粒子不需要考虑dummy，wall粒子都要考虑
+	for (int i = 0; i < num1; i++)
 	{
 		particles[i].adjoinParticleIndex.clear();
-		for (int j = 0; j < particles.size(); j++)
+		if (i < particleNumber)
 		{
-			if (j != i)
+			//普通粒子的处理
+			for (int j = 0; j < num1; j++)
 			{
-				vec3 pos1 = particles[j].position;
-				if (distance(pos1, particles[i].position) <= range)
-					particles[i].adjoinParticleIndex.push_back(j);
+				if (j != i)
+				{
+					vec3 pos1 = particles[j].position;
+					if (distance(pos1, particles[i].position) <= range)
+						particles[i].adjoinParticleIndex.push_back(j);
+				}
+			}
+		}
+		else
+		{
+			//wall粒子的处理
+			for (int j = 0; j < num2; j++)
+			{
+				if (j != i)
+				{
+					vec3 pos1 = particles[j].position;
+					if (distance(pos1, particles[i].position) <= range)
+						particles[i].adjoinParticleIndex.push_back(j);
+				}
 			}
 		}
 	}
