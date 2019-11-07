@@ -18,7 +18,10 @@ public:
 	float pressure;								//受到的压力
 	float n0;									//初始的密度值
 	float tho;									//当前的密度
+
 	bool isSurface;								//粒子是否为表面
+	bool isWall;								//粒子是否为墙
+	bool isDummy;								//粒子是否为虚拟墙面（作用是区分墙粒子和表面粒子）
 
 	int index;									//记录自身的索引值
 	vector<int> adjoinParticleIndex;			//记录邻接粒子的索引
@@ -35,6 +38,8 @@ public:
 		size = 0;
 		index = -1;
 		isSurface = false;
+		isWall = false;
+		isDummy = false;
 	}
 	MPSWaterParticle(vec3 _pos, vec3 _speed, float _pressure, float _size = 1, float _life = 0)
 	{

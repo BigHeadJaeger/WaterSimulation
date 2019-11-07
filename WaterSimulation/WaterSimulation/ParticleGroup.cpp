@@ -5,7 +5,7 @@ void MPSWaterParticleGroup::InitParticles()
 	//初始化MPS工具
 	InitMPSTool();
 
-	vec3 offset = vec3(0.01);
+	vec3 offset = vec3(l0);
 	int width, height, depth;
 	width = height = depth = 10;
 	float highest = 0;
@@ -27,6 +27,14 @@ void MPSWaterParticleGroup::InitParticles()
 		R.index = i;
 		particles.push_back(R);
 	}
+
+	//还需要初始化粒子墙以及dummy wall	(可以看成再创建1+2层空心无盖的cube)   ps:要确保容器包围住所有的粒子
+	int containerWidth = width * 2;
+	int containerHeight = height + 5;
+	int containerDepth = depth + 2;
+
+
+
 	//更新邻接点关系
 	UpdateAdjoin(range);
 	//设置每一个粒子的初始密度
