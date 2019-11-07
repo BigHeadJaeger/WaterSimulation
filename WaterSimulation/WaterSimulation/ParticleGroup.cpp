@@ -206,11 +206,11 @@ void MPSWaterParticleGroup::SetInitialN0()
 	}
 
 	//只需要计算普通粒子和墙粒子的密度
-	for (int i = 0; i < particles.size(); i++)
+	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
 		if (i < particleNumber)			//普通粒子
 			particles[i].n0 = tool->DensityN(posArray1, i);
-		else if (i < (particleNumber + particleWallNum))		//墙粒子
+		else							//墙粒子
 			particles[i].n0 = tool->DensityN(posArray, i);
 	}
 
@@ -256,8 +256,8 @@ void MPSWaterParticleGroup::UpdateAdjoin(float range)
 
 void MPSWaterParticleGroup::Update(float dt)
 {
-	//每一帧的计算需要先更新一下邻接关系
-	UpdateAdjoin(range);
+	////每一帧的计算需要先更新一下邻接关系
+	//UpdateAdjoin(range);
 
 	MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
 	//每一帧的主要算法流程遍历每一个粒子
@@ -268,12 +268,17 @@ void MPSWaterParticleGroup::Update(float dt)
 	// u的拉普拉斯结果
 	// u*的计算
 	// n*的计算
+	MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
 	vector<double> Right;					//存储每一个粒子的右端项
-	
+
 	vector<vec3> posArray;					//记录k时刻所有粒子的位置
+	vector<vec3> posArray1;					//记录k时刻除去dummy的粒子的位置
 	vector<vec3> uArray;					//记录k时刻所有粒子的速度
+	vector<vec3> uArray1;					//记录k时刻除去dummy的粒子的速度
 	vector<vec3> tempUArray;				//记录忽略压力项后k+1时刻所有粒子的u*
+	vector<vec3> tempUArray1;				//记录忽略压力项后k+1时刻除去dummy的粒子的u*
 	vector<vec3> tempPosArray;				//记录忽略压力项后k+1时刻所有粒子的r*
+	vector<vec3> tempPosArray1;				//记录忽略压力项后k+1时刻除去dummy的粒子的r*
 
 	//1.2 计算隐式的P
 	vector<bool> surfaceJudgeArray;			//记录粒子的表面判断
@@ -283,48 +288,84 @@ void MPSWaterParticleGroup::Update(float dt)
 	{
 		posArray.push_back(particles[i].position);
 		uArray.push_back(particles[i].speed);
+		if (i < (particleNumber + particleWallNum))
+		{
+			posArray1.push_back(particles[i].position);
+			uArray1.push_back(particles[i].speed);
+		}
 	}
-	//遍历粒子 获取临时的速度和位置
-	for (int i = 0; i < particles.size(); i++)
+	//遍历粒子 获取临时的速度和位置（只有普通粒子需要计算，且计算的时候不需要dummy的相关数据,而wall粒子的速度和位置都不变）
+	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
-		//计算临时速度u* 并更新临时位置r*
-		vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray, posArray, i, particles[i].n0), particles[i].position);
-		tempUArray.push_back(tempU);
+		//计算临时值的时候顺便计算一下现时刻的粒子密度
+		if (i < particleNumber)
+		{
+			//计算临时速度u* 并更新临时位置r*
+			vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray1, posArray1, i, particles[i].n0), particles[i].position);
+			tempUArray1.push_back(tempU);
 
-		vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();;
-		tempPosArray.push_back(tempPos);
+			vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();
+			tempPosArray1.push_back(tempPos);
 
-		//用现时刻的位置更新一下粒子的密度
-		particles[i].tho = mpsTool->DensityN(posArray, i);
+			particles[i].tho = mpsTool->DensityN(posArray1, i);
+		}
+		else
+		{
+			tempUArray1.push_back(vec3(0));						//wall粒子速度一直为0
+			tempPosArray1.push_back(particles[i].position);		//wall粒子位置保持不变
+			particles[i].tho = mpsTool->DensityN(posArray, i);
+		}
 	}
+	//为全部粒子临时值集合赋值
+	tempUArray = tempUArray1;
+	tempPosArray = tempPosArray1;
+	for (int i = (particleNumber + particleWallNum); i < particleDummyNum; i++)
+	{
+		tempUArray.push_back(vec3(0));
+		tempPosArray.push_back(particles[i].position);
+	}
+
+
 	//用临时速度和临时位置计算每个粒子对应的右端项
-	for (int i = 0; i < particles.size(); i++)
+	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
-		float resDivergence = mpsTool->ExplicitDivergence(tempUArray, tempPosArray, i, particles[i].n0);
-		float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
-		Right.push_back(resRight);
+		//普通粒子和wall粒子的右端项计算需要不同的粒子集合
+		if (i < particleNumber)
+		{
+			//普通粒子不需要dummy
+			float resDivergence = mpsTool->ExplicitDivergence(tempUArray1, tempPosArray1, i, particles[i].n0);
+			float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray1, i));
+			Right.push_back(resRight);
+		}
+		else
+		{
+			//wall 粒子用全部粒子集合
+			float resDivergence = mpsTool->ExplicitDivergence(tempUArray, tempPosArray, i, particles[i].n0);
+			float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
+			Right.push_back(resRight);
+		}
 
-		//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率
+		//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率，初始化的时候不需要再进行一次表面检测
+		//检测的时候wall也检测，因为有dummy所以不会被误认为是表面
 		particles[i].SurfaceAdjudge(a, g, l0);
 		surfaceJudgeArray.push_back(particles[i].isSurface);
 		n0Array.push_back(particles[i].n0);
 	}
 
-	//1.2.2 解一个泊松方程
-	vector<double> resP = mpsTool->ImplicitCalculateP(posArray, n0Array, surfaceJudgeArray, Right);
+	//1.2.2 解一个泊松方程(此时的计算排除dummy)
+	vector<double> resP = mpsTool->ImplicitCalculateP(posArray1, n0Array, surfaceJudgeArray, Right);
 
-
-	//计算每一个粒子新的速度U
-	for (int i = 0; i < particles.size(); i++)
+	//计算每一个粒子新的速度U（只需要计算普通粒子就可以，但是wall粒子需要参与各公式）
+	for (int i = 0; i < particleNumber; i++)
 	{
-		mat3 C = mpsTool->GetMaterixC(posArray, i, particles[i].n0);
-		vec3 v1 = mpsTool->ExplicitGradient(C, resP, posArray, particles[i].n0, i);			//计算每个粒子的显式梯度
-		vec3 resLU = mpsTool->ExplicitLaplacian(uArray, posArray, i, particles[i].n0);
+		mat3 C = mpsTool->GetMaterixC(posArray1, i, particles[i].n0);
+		vec3 v1 = mpsTool->ExplicitGradient(C, resP, posArray1, particles[i].n0, i);			//计算每个粒子的显式梯度
+		vec3 resLU = mpsTool->ExplicitLaplacian(uArray1, posArray1, i, particles[i].n0);
 		particles[i].speed = mpsTool->CalculateU(resLU, v1, particles[i].speed, particles[i].tho);
 	}
 
-	//更新位置和压力
-	for (int i = 0; i < particles.size(); i++)
+	//更新位置和压力（只有普通粒子的位置和压力有变化，wall粒子只有压力会变）
+	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
 		particles[i].pressure = resP[i];
 		particles[i].position += particles[i].speed * mpsTool->GetDeltaT();
