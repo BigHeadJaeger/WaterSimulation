@@ -57,10 +57,10 @@ private:
 public:
 	MPSWaterParticleGroup()
 	{
-		particleNumber = 10;
-		l0 = 0.01;
-		range = 0.5;
-		viscosity = 0.000001;
+		particleNumber = 0;
+		l0 = 0;
+		range = 0;
+		viscosity = 0;
 		a = 0.75;
 
 		marchingCube = NULL;

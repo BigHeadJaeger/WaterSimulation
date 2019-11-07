@@ -4,18 +4,20 @@ void MPSWaterParticleGroup::InitParticles()
 {
 	//初始化MPS工具
 	InitMPSTool();
-
-	vec3 offset = vec3(l0);
-	int width, height, depth;
+	vec3 initPos = transformation.position;
+	vec3 offset = vec3(l0);									//粒子空间分布布局
+	int width, height, depth;								//粒子的长宽高排布
 	width = height = depth = 10;
-	float highest = 0;
+
+	float highest = 0;										//找到最高点位置
 	if (offset.y > 0)
-		highest = transformation.position.y + (height - 1) * offset.y;
+		highest = initPos.y + (height - 1) * offset.y;
 	else
-		highest = transformation.position.y;
+		highest = initPos.y;
 	vector<vec3> positions;
-	particleNumber = CubeDistribute(positions, transformation.position, offset, width, height, depth);
-	for (int i = 0; i < particleNumber; i++)
+	int n = 0;
+	n = CubeDistribute(positions, initPos, offset, width, height, depth);
+	for (int i = 0; i < n; i++)
 	{
 		//初始化当前粒子并push进去
 		MPSWaterParticle R;
@@ -27,13 +29,45 @@ void MPSWaterParticleGroup::InitParticles()
 		R.index = i;
 		particles.push_back(R);
 	}
+	particleNumber += n;
 
 	//还需要初始化粒子墙以及dummy wall	(可以看成再创建1+2层空心无盖的cube)   ps:要确保容器包围住所有的粒子
+	//wall
 	int containerWidth = width * 2;
-	int containerHeight = height + 5;
+	int containerHeight = height + 10;
 	int containerDepth = depth + 2;
+	initPos -= offset;
+	positions.clear();
+	n = UncoverHollowCubeDistribute(positions, initPos, offset, containerWidth, containerHeight, containerDepth);
+	for (int i = 0; i < n; i++)
+	{
+		MPSWaterParticle R;
+		R.position = positions[i];
+		R.isWall = true;
+		R.index = i + particleNumber;				//加上之前已经有的索引偏移量
+	}
+	particleNumber += n;
+	//dummy
+	int dummyWidth = containerWidth + 2;
+	int dummyHeight = containerHeight;
+	int dummyDepth = containerDepth + 2;
+	positions.clear();
 
-
+	initPos -= offset;
+	n = UncoverHollowCubeDistribute(positions, initPos, offset, containerWidth, containerHeight, containerDepth);
+	//第二层
+	dummyWidth += 2;
+	dummyDepth += 2;
+	initPos -= offset;
+	n += UncoverHollowCubeDistribute(positions, initPos, offset, containerWidth, containerHeight, containerDepth);
+	for (int i = 0; i < n; i++)
+	{
+		MPSWaterParticle R;
+		R.position = positions[i];
+		R.isDummy = true;
+		R.index = i + particleNumber;				//加上之前已经有的索引偏移量
+	}
+	particleNumber += n;
 
 	//更新邻接点关系
 	UpdateAdjoin(range);

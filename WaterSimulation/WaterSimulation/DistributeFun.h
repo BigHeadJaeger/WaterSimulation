@@ -4,6 +4,8 @@
 using namespace std;
 using namespace glm;
 
+//点的各种分布方法
+
 //参数 结果位置集合 初始点位置 3维步长 num宽 num高 num深
 static int CubeDistribute(vector<vec3>& result, vec3 initPos, vec3 offset, int w, int h, int d)
 {
