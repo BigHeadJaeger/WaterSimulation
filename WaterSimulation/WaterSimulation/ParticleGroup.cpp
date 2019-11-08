@@ -34,7 +34,7 @@ void MPSWaterParticleGroup::InitParticles()
 	//还需要初始化粒子墙以及dummy wall	(可以看成再创建1+2层空心无盖的cube)   ps:要确保容器包围住所有的粒子
 	//wall
 	int containerWidth = width * 2;
-	int containerHeight = height + 10;
+	int containerHeight = height + 5;
 	int containerDepth = depth + 2;
 	initPos -= offset;
 	positions.clear();
@@ -45,6 +45,7 @@ void MPSWaterParticleGroup::InitParticles()
 		R.position = positions[i];
 		R.isWall = true;
 		R.index = i + particleNumber;				//加上之前已经有的索引偏移量
+		particles.push_back(R);
 	}
 	particleWallNum = n;
 	//dummy
@@ -54,25 +55,26 @@ void MPSWaterParticleGroup::InitParticles()
 	positions.clear();
 
 	initPos -= offset;
-	n = UncoverHollowCubeDistribute(positions, initPos, offset, containerWidth, containerHeight, containerDepth);
+	n = UncoverHollowCubeDistribute(positions, initPos, offset, dummyWidth, dummyHeight, dummyDepth);
 	//第二层
 	dummyWidth += 2;
 	dummyDepth += 2;
 	initPos -= offset;
-	n += UncoverHollowCubeDistribute(positions, initPos, offset, containerWidth, containerHeight, containerDepth);
+	n += UncoverHollowCubeDistribute(positions, initPos, offset, dummyWidth, dummyHeight, dummyDepth);
 	for (int i = 0; i < n; i++)
 	{
 		MPSWaterParticle R;
 		R.position = positions[i];
 		R.isDummy = true;
 		R.index = i + particleNumber + particleWallNum;				//加上之前已经有的索引偏移量
+		particles.push_back(R);
 	}
 	particleDummyNum = n;
 
 	particleTotalNum = particleNumber + particleDummyNum + particleWallNum;
 
 	//更新邻接点关系
-	UpdateAdjoin(range);
+	//UpdateAdjoin(range);
 	//设置每一个粒子的初始密度
 	SetInitialN0();
 
@@ -125,7 +127,7 @@ void MPSWaterParticleGroup::InitParticles()
 	//为全部粒子临时值集合赋值
 	tempUArray = tempUArray1;
 	tempPosArray = tempPosArray1;
-	for (int i = (particleNumber + particleWallNum); i < particleDummyNum; i++)
+	for (int i = (particleNumber + particleWallNum); i < particleTotalNum; i++)
 	{
 		tempUArray.push_back(vec3(0));
 		tempPosArray.push_back(particles[i].position);
@@ -136,6 +138,7 @@ void MPSWaterParticleGroup::InitParticles()
 	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
 		//普通粒子和wall粒子的右端项计算需要不同的粒子集合
+		//初始化的时候用旧的右端项方法
 		if (i < particleNumber)
 		{
 			//普通粒子不需要dummy
@@ -148,11 +151,7 @@ void MPSWaterParticleGroup::InitParticles()
 			float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
 			Right.push_back(resRight);
 		}
-		//初始化的时候用旧的右端项方法
-		float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
-		//float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
-		Right.push_back(resRight);
-
+		
 		//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率，初始化的时候不需要再进行一次表面检测
 		surfaceJudgeArray.push_back(particles[i].isSurface);
 		n0Array.push_back(particles[i].n0);
@@ -259,7 +258,7 @@ void MPSWaterParticleGroup::Update(float dt)
 	////每一帧的计算需要先更新一下邻接关系
 	//UpdateAdjoin(range);
 
-	MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
+	//MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
 	//每一帧的主要算法流程遍历每一个粒子
 
 	//1.计算每个粒子的p
@@ -319,7 +318,7 @@ void MPSWaterParticleGroup::Update(float dt)
 	//为全部粒子临时值集合赋值
 	tempUArray = tempUArray1;
 	tempPosArray = tempPosArray1;
-	for (int i = (particleNumber + particleWallNum); i < particleDummyNum; i++)
+	for (int i = (particleNumber + particleWallNum); i < particleTotalNum; i++)
 	{
 		tempUArray.push_back(vec3(0));
 		tempPosArray.push_back(particles[i].position);
