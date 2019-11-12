@@ -7,7 +7,7 @@ void MPSWaterParticleGroup::InitParticles()
 	vec3 initPos = transformation.position;
 	vec3 offset = vec3(l0);									//粒子空间分布布局
 	int width, height, depth;								//粒子的长宽高排布
-	width = height = depth = 10;
+	width = height = depth = 5;
 
 	float highest = 0;										//找到最高点位置
 	if (offset.y > 0)
@@ -112,7 +112,7 @@ void MPSWaterParticleGroup::InitParticles()
 		if (i < particleNumber)
 		{
 			//计算临时速度u* 并更新临时位置r*
-			vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray1, posArray1, i, particles[i].n0), particles[i].position);
+			vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray1, posArray1, i, particles[i].n0), particles[i].speed);
 			tempUArray1.push_back(tempU);
 
 			vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();
@@ -158,11 +158,14 @@ void MPSWaterParticleGroup::InitParticles()
 	}
 
 	//1.2.2 解一个泊松方程(此时的计算排除dummy)
-	vector<double> resP = mpsTool->ImplicitCalculateP(posArray1, n0Array, surfaceJudgeArray, Right);
-
+	vector<double> resP = mpsTool->ImplicitCalculateP(tempPosArray1, n0Array, surfaceJudgeArray, Right);
+	//vector<double> resP1 = mpsTool->ImplicitCalculateP(tempPosArray1, n0Array, surfaceJudgeArray, Right);
 	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
-		particles[i].pressure = resP[i];
+		if (particles[i].isSurface)
+			particles[i].pressure = 0;
+		else
+			particles[i].pressure = resP[i];
 	}
 }
 
@@ -300,7 +303,7 @@ void MPSWaterParticleGroup::Update(float dt)
 		if (i < particleNumber)
 		{
 			//计算临时速度u* 并更新临时位置r*
-			vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray1, posArray1, i, particles[i].n0), particles[i].position);
+			vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray1, posArray1, i, particles[i].n0), particles[i].speed);
 			tempUArray1.push_back(tempU);
 
 			vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();
@@ -324,30 +327,42 @@ void MPSWaterParticleGroup::Update(float dt)
 		tempPosArray.push_back(particles[i].position);
 	}
 
-
+	//vector<float> tempNArray;
 	//用临时速度和临时位置计算每个粒子对应的右端项
 	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
+		float tempN = 0;
 		//普通粒子和wall粒子的右端项计算需要不同的粒子集合
 		if (i < particleNumber)
 		{
 			//普通粒子不需要dummy
 			float resDivergence = mpsTool->ExplicitDivergence(tempUArray1, tempPosArray1, i, particles[i].n0);
-			float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray1, i));
+			tempN = mpsTool->DensityN(tempPosArray1, i);
+			//tempNArray.push_back(tempN);
+			float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, tempN);
 			Right.push_back(resRight);
 		}
 		else
 		{
 			//wall 粒子用全部粒子集合
 			float resDivergence = mpsTool->ExplicitDivergence(tempUArray, tempPosArray, i, particles[i].n0);
-			float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
+			tempN = mpsTool->DensityN(tempPosArray, i);
+			//tempNArray.push_back(tempN);
+			float resRight = mpsTool->ImplicitLaplacianRight(particles[i].n0, resDivergence, particles[i].n0, tempN);
 			Right.push_back(resRight);
 		}
 
-		//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率，初始化的时候不需要再进行一次表面检测
+		//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率
 		//检测的时候wall也检测，因为有dummy所以不会被误认为是表面
-		particles[i].SurfaceAdjudge(a, g, l0);
-		surfaceJudgeArray.push_back(particles[i].isSurface);
+		
+		//particles[i].OldSurfaceAdjudge(0.97, tempN);
+		if (i < particleNumber)
+		{
+			//particles[i].SurfaceAdjudge(a, g, l0, particles[i].n0);
+			surfaceJudgeArray.push_back(particles[i].isSurface);
+		}
+		else
+			surfaceJudgeArray.push_back(false);
 		n0Array.push_back(particles[i].n0);
 	}
 
@@ -366,7 +381,10 @@ void MPSWaterParticleGroup::Update(float dt)
 	//更新位置和压力（只有普通粒子的位置和压力有变化，wall粒子只有压力会变）
 	for (int i = 0; i < (particleNumber + particleWallNum); i++)
 	{
-		particles[i].pressure = resP[i];
+		if (particles[i].isSurface)
+			particles[i].pressure = 0;
+		else
+			particles[i].pressure = resP[i];
 		particles[i].position += particles[i].speed * mpsTool->GetDeltaT();
 	}
 

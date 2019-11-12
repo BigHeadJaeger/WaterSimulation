@@ -51,5 +51,6 @@ public:
 		index = -1;
 	}
 
-	void SurfaceAdjudge(float a, float g, float l0);
+	void SurfaceAdjudge(float a, float g, float l0, float thoNow);
+	void OldSurfaceAdjudge(float b, float nNow);
 };

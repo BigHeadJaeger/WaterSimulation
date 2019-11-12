@@ -41,7 +41,7 @@ void MyScene::Init()
 	MPSWaterParticleGroup* water = new MPSWaterParticleGroup();
 	water->SetName("water");
 	water->SetRenderer(SIMPLERENDER);
-	water->GetTransform().SetPosition(vec3(0));
+	water->GetTransform().SetPosition(vec3(0.5));
 	water->SetDiameter(0.01);
 	water->SetViscosity(0.000001);
 	water->InitParticles();
