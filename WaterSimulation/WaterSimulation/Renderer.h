@@ -9,9 +9,10 @@ using namespace std;
 
 enum RENDERERTYPE
 {
-	UE4RENDERER,
-	SIMPLERENDER,
-	MPSRENDERER,
+	UE4,
+	SIMPLE,
+	MPS,
+	VC
 };
 
 class Renderer
@@ -79,6 +80,23 @@ public:
 		if (instance == NULL)
 		{
 			instance = new MPSRenderer();
+		}
+		return instance;
+	}
+	void Render(ShaderData* shaderData) override;
+};
+
+class VCRenter :public Renderer
+{
+private:
+	static VCRenter* instance;
+	VCRenter() {}
+public:
+	static VCRenter* GetRenderer()
+	{
+		if (instance == NULL)
+		{
+			instance = new VCRenter();
 		}
 		return instance;
 	}

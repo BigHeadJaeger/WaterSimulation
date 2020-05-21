@@ -89,73 +89,73 @@ vector<double> MPSToolFun::ImplicitCalculateP(vector<vec3>& r, vector<float>& n0
 
 bool MPSToolFun::SolveEquation(vector<double>& a, vector<int>& ia, vector<int>& ja, vector<double>& b, vector<double>& x, int nRhs)
 {
-	int n = ia.size() - 1;				//得到未知量元素个数
-	const int nnz = ia.back() - 1;		//得到非零元素个数
-	if (ja.size() != nnz || a.size() != nnz || b.size() < nRhs * n || x.size() < nRhs * n)
-		return false;
+	//int n = ia.size() - 1;				//得到未知量元素个数
+	//const int nnz = ia.back() - 1;		//得到非零元素个数
+	//if (ja.size() != nnz || a.size() != nnz || b.size() < nRhs * n || x.size() < nRhs * n)
+	//	return false;
 
-	int mtype = 11;							// 设为解不对称的方程组
+	//int mtype = 11;							// 设为解不对称的方程组
 
-	std::vector<void*> pt(64, NULL);		// Internal solver memory pointer
-	std::vector<int> iparm(64, 0);			// Pardiso control parameters
-	int maxfct, mnum, phase, error, msglvl = 0;
-	/* Auxiliary variables. */
-	double ddum;			// Double dummy
-	int idum;				// Integer dummy
-	iparm[0] = 1;			// No solver default
-	iparm[1] = 2;			// Fill-in reordering from METIS */
-	iparm[2] = omp_get_max_threads();			// omp_get_max_threads();	/* Numbers of processors, value of OMP_NUM_THREADS */
-	iparm[7] = 2;			// Max numbers of iterative refinement steps
-	iparm[9] = 13;			// Perturb the pivot elements with 1E-13
-	iparm[10] = 1;			// Use nonsymmetric permutation and scaling MPS
-	iparm[17] = -1;			// Output: Number of nonzeros in the factor LU
-	iparm[18] = -1;			// Output: Mflops for LU factorization
-	iparm[19] = 0;			// Output: Numbers of CG Iterations
-	maxfct = 1;				// Maximum number of numerical factorizations
-	mnum = 1;				// Which factorization to use
-							//	msglvl = 1;				// Print statistical information in file
-	error = 0;				// Initialize error flag
+	//std::vector<void*> pt(64, NULL);		// Internal solver memory pointer
+	//std::vector<int> iparm(64, 0);			// Pardiso control parameters
+	//int maxfct, mnum, phase, error, msglvl = 0;
+	///* Auxiliary variables. */
+	//double ddum;			// Double dummy
+	//int idum;				// Integer dummy
+	//iparm[0] = 1;			// No solver default
+	//iparm[1] = 2;			// Fill-in reordering from METIS */
+	//iparm[2] = omp_get_max_threads();			// omp_get_max_threads();	/* Numbers of processors, value of OMP_NUM_THREADS */
+	//iparm[7] = 2;			// Max numbers of iterative refinement steps
+	//iparm[9] = 13;			// Perturb the pivot elements with 1E-13
+	//iparm[10] = 1;			// Use nonsymmetric permutation and scaling MPS
+	//iparm[17] = -1;			// Output: Number of nonzeros in the factor LU
+	//iparm[18] = -1;			// Output: Mflops for LU factorization
+	//iparm[19] = 0;			// Output: Numbers of CG Iterations
+	//maxfct = 1;				// Maximum number of numerical factorizations
+	//mnum = 1;				// Which factorization to use
+	//						//	msglvl = 1;				// Print statistical information in file
+	//error = 0;				// Initialize error flag
 
-							//////////////////////////////////////////////////////////////////////////
-							// .. Reordering and Symbolic Factorization. This step also allocates
-							// all memory that is necessary for the factorization. */
-							//////////////////////////////////////////////////////////////////////////
-	phase = 11;
-	PARDISO(&pt.front(), &maxfct, &mnum, &mtype, &phase, &n, &a.front(), &ia.front(), &ja.front(),
-		&idum, &nRhs, &iparm.front(), &msglvl, &ddum, &ddum, &error);
+	//						//////////////////////////////////////////////////////////////////////////
+	//						// .. Reordering and Symbolic Factorization. This step also allocates
+	//						// all memory that is necessary for the factorization. */
+	//						//////////////////////////////////////////////////////////////////////////
+	//phase = 11;
+	//PARDISO(&pt.front(), &maxfct, &mnum, &mtype, &phase, &n, &a.front(), &ia.front(), &ja.front(),
+	//	&idum, &nRhs, &iparm.front(), &msglvl, &ddum, &ddum, &error);
 
-	if (error != 0) {
-		printf("\nERROR during symbolic factorization: %d", error);
-		return false;
-	}
-	//////////////////////////////////////////////////////////////////////////
-	// .. Numerical factorization
-	//////////////////////////////////////////////////////////////////////////
-	phase = 22;
-	PARDISO(&pt.front(), &maxfct, &mnum, &mtype, &phase, &n, &a.front(), &ia.front(), &ja.front(),
-		&idum, &nRhs, &iparm.front(), &msglvl, &ddum, &ddum, &error);
-	if (error != 0) {
-		printf("\nERROR during numerical factorization: %d", error);
-		return false;
-	}
+	//if (error != 0) {
+	//	printf("\nERROR during symbolic factorization: %d", error);
+	//	return false;
+	//}
+	////////////////////////////////////////////////////////////////////////////
+	//// .. Numerical factorization
+	////////////////////////////////////////////////////////////////////////////
+	//phase = 22;
+	//PARDISO(&pt.front(), &maxfct, &mnum, &mtype, &phase, &n, &a.front(), &ia.front(), &ja.front(),
+	//	&idum, &nRhs, &iparm.front(), &msglvl, &ddum, &ddum, &error);
+	//if (error != 0) {
+	//	printf("\nERROR during numerical factorization: %d", error);
+	//	return false;
+	//}
 
-	//////////////////////////////////////////////////////////////////////////
-	// .. Back substitution and iterative refinement
-	//////////////////////////////////////////////////////////////////////////
-	phase = 33;
-	PARDISO(&pt.front(), &maxfct, &mnum, &mtype, &phase, &n, &a.front(), &ia.front(), &ja.front(),
-		&idum, &nRhs, &iparm.front(), &msglvl, &b.front(), &x.front(), &error);
-	if (error != 0) {
-		printf("\nERROR during solution: %d", error);
-		return false;
-	}
+	////////////////////////////////////////////////////////////////////////////
+	//// .. Back substitution and iterative refinement
+	////////////////////////////////////////////////////////////////////////////
+	//phase = 33;
+	//PARDISO(&pt.front(), &maxfct, &mnum, &mtype, &phase, &n, &a.front(), &ia.front(), &ja.front(),
+	//	&idum, &nRhs, &iparm.front(), &msglvl, &b.front(), &x.front(), &error);
+	//if (error != 0) {
+	//	printf("\nERROR during solution: %d", error);
+	//	return false;
+	//}
 
-	//////////////////////////////////////////////////////////////////////////
-	// .. Termination and release of memory
-	//////////////////////////////////////////////////////////////////////////
-	phase = -1; /* Release internal memory. */
-	PARDISO(&pt.front(), &maxfct, &mnum, &mtype, &phase, &n, &ddum, &ia.front(), &ja.front(),
-		&idum, &nRhs, &iparm.front(), &msglvl, &ddum, &ddum, &error);
+	////////////////////////////////////////////////////////////////////////////
+	//// .. Termination and release of memory
+	////////////////////////////////////////////////////////////////////////////
+	//phase = -1; /* Release internal memory. */
+	//PARDISO(&pt.front(), &maxfct, &mnum, &mtype, &phase, &n, &ddum, &ia.front(), &ja.front(),
+	//	&idum, &nRhs, &iparm.front(), &msglvl, &ddum, &ddum, &error);
 
 	return true;
 }

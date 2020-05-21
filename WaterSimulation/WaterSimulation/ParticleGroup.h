@@ -97,6 +97,7 @@ public:
 	void Draw() override;
 
 	void InitBufferData() override;
+	void UpdateBufferData() override;
 };
 
 

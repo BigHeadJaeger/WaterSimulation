@@ -9,6 +9,7 @@ void MyScene::Init()
 	//初始化Renderer中的program
 	UE4Renderer::GetRenderer()->InitProgram("UE4ShaderFile.vert", "UE4ShaderFile.frag");
 	SimpleRenderer::GetRenderer()->InitProgram("SimpleShaderFile.vert", "SimpleShaderFile.frag");
+	VCRenter::GetRenderer()->InitProgram("SF_VertexColor.vert", "SF_VertexColor.frag");
 
 	//pShadowTex.SetShader("shadowTex.v", "shadowTex.f");
 
@@ -19,7 +20,7 @@ void MyScene::Init()
 
 	//初始化主相机
 	//mainCamera = new Camera();
-	MainCamera::GetInstance()->Init(vec3(0, 2, 1), vec3(0, 0, 0));
+	MainCamera::GetInstance()->Init(vec3(0, 0, 1), vec3(0, 0, 0));
 
 	//SetDrawMode(drawMode.isLine, false);
 	drawMode.isLine = false;
@@ -36,23 +37,25 @@ void MyScene::Init()
 	//cow->GetTransform().SetPosition(vec3(0, 0, 0));
 	//cow->GetTransform().SetScaler(vec3(3.0));
 	//dynamic_cast<SimpleShaderData*>(cow->GetShaderData())->SetColor(vec3(255, 0, 0));
-	//objects.insert(pair<string, Object*>(cow->GetName(), cow))
+	//objects.insert(pair<string, Object*>(cow->GetName(), cow));
 
 	MPSWaterParticleGroup* water = new MPSWaterParticleGroup();
 	water->SetName("water");
-	water->SetRenderer(SIMPLERENDER);
-	water->GetTransform().SetPosition(vec3(0.5));
+	water->SetRenderer(VC);
+	water->GetTransform().SetPosition(vec3(0));
 	water->SetDiameter(0.01);
 	water->SetViscosity(0.000001);
 	water->InitParticles();
-	dynamic_cast<SimpleShaderData*>(water->GetShaderData())->SetColor(vec3(0, 0, 200));
+	water->InitBufferData();
+	//dynamic_cast<SimpleShaderData*>(water->GetShaderData())->SetColor(vec3(0, 0, 200));
 	objects.insert(pair<string, Object*>(water->GetName(), water));
 
 
 	//Metaball* balls = new Metaball();
 	//balls->SetName("Metaball");
 	//balls->SetRenderer(SIMPLERENDER);
-	//balls->GetTransform().SetPosition(vec3(-0, -0, 0));
+	//balls->InitBufferData();
+	//balls->GetTransform().SetPosition(vec3(-0.5, -0, 0));
 	//balls->SetSourcePoints(vec3(0.1), 2, 1, 2);
 	//balls->SetRadius(0.005);
 	////balls->GetTransform().SetScaler(vec3(3.0));

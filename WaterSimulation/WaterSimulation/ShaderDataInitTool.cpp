@@ -2,7 +2,9 @@
 
 ShaderDataInitTool* ShaderDataInitTool::instance = NULL;
 
-void ShaderDataInitTool::InitVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float>& vertexData, bool providedNormal, bool providedTex)
+
+
+void ShaderDataInitTool::InitVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float>& vertexData, bool providedNormal, bool providedTex, GLenum usage)
 {
 	glDeleteVertexArrays(1, &VAO);
 	glGenVertexArrays(1, &VAO);
@@ -10,23 +12,7 @@ void ShaderDataInitTool::InitVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float
 	vector<float> vertexPos;
 	vector<float> vertexNormal;
 	vector<float> vertexTex;
-	for (int i = 0; i < vertexData.size(); i = i + 8)
-	{
-		vertexPos.push_back(vertexData[i]);
-		vertexPos.push_back(vertexData[i + 1]);
-		vertexPos.push_back(vertexData[i + 2]);
-		if (providedNormal)
-		{
-			vertexNormal.push_back(vertexData[i + 3]);
-			vertexNormal.push_back(vertexData[i + 4]);
-			vertexNormal.push_back(vertexData[i + 5]);
-		}
-		if (providedTex)
-		{
-			vertexTex.push_back(vertexData[i + 6]);
-			vertexTex.push_back(vertexData[i + 7]);
-		}
-	}
+	VertexDataUnpack(vertexData, vertexPos, vertexNormal, vertexTex);
 
 	//创建顶点buffer
 	glDeleteBuffers(1, &VBO);
@@ -40,7 +26,7 @@ void ShaderDataInitTool::InitVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float
 	if (providedTex)
 		sumSize += vertexTex.size() * sizeof(float);
 	//开辟空间
-	glBufferData(GL_ARRAY_BUFFER, sumSize, NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sumSize, NULL, usage);
 
 	GLintptr offset = 0;
 	//初始化数据
@@ -84,6 +70,69 @@ void ShaderDataInitTool::InitVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float
 
 }
 
+void ShaderDataInitTool::UpdateVertexBuffer(GLuint& VAO, GLuint& VBO, vector<float>& vertexData, bool providedNormal, bool providedTex)
+{
+	if (!glIsVertexArray(VAO))
+	{
+		cout << "VAO not exist, need init before update" << endl;
+		return;
+	}
+	if (!glIsBuffer(VBO))
+	{
+		cout << "VBO not exist, need init before update" << endl;
+		return;
+	}
+
+	glBindVertexArray(VAO);
+	vector<float> vertexPos;
+	vector<float> vertexNormal;
+	vector<float> vertexTex;
+	VertexDataUnpack(vertexData, vertexPos, vertexNormal, vertexTex);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	GLintptr offset = 0;
+	// 重新分配新的数据
+	glBufferSubData(GL_ARRAY_BUFFER, offset, vertexPos.size() * sizeof(float), &vertexPos[0]);
+	offset += vertexPos.size() * sizeof(float);
+	if (providedNormal)
+	{
+		glBufferSubData(GL_ARRAY_BUFFER, offset, vertexNormal.size() * sizeof(float), &vertexNormal[0]);
+		offset += vertexNormal.size() * sizeof(float);
+	}
+	if (providedTex)
+	{
+		glBufferSubData(GL_ARRAY_BUFFER, offset, vertexTex.size() * sizeof(float), &vertexTex[0]);
+		offset += vertexNormal.size() * sizeof(float);
+	}
+
+	GLint index = 0;
+	GLsizeiptr size = 0;
+	//还需要用glVertexAttribPointer更新顶点属性指针
+	glEnableVertexAttribArray(index);
+	glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)size);
+	index++;
+	size += vertexPos.size() * sizeof(float);
+	if (providedNormal)
+	{
+		glEnableVertexAttribArray(index);
+		glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)size);
+		index++;
+		size += vertexNormal.size() * sizeof(float);
+	}
+	if (providedTex)
+	{
+		glEnableVertexAttribArray(index);
+		glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)size);
+		index++;
+		size += vertexNormal.size() * sizeof(float);
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+
+}
+
 void ShaderDataInitTool::InitTextureWithFile(GLuint& texID, string texPath)
 {
 	glGenTextures(1, &texID);					//生成一个纹理ID
@@ -102,4 +151,74 @@ void ShaderDataInitTool::InitTextureWithFile(GLuint& texID, string texPath)
 	//解除绑定并释放
 	glBindTexture(GL_TEXTURE_2D, 0);
 	SOIL_free_image_data(pResult);
+}
+
+void ShaderDataInitTool::InitBufferVC(GLuint& VAO, GLuint& VBO, vector<float>& vertexData, GLenum usage)
+{
+	glDeleteVertexArrays(1, &VAO);
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	vector<float> vertexPos;
+	vector<float> vertexColor;
+	for (int i = 0; i < vertexData.size(); i = i + 6)
+	{
+		vertexPos.push_back(vertexData[i]);
+		vertexPos.push_back(vertexData[i + 1]);
+		vertexPos.push_back(vertexData[i + 2]);
+		vertexColor.push_back(vertexData[i + 3]);
+		vertexColor.push_back(vertexData[i + 4]);
+		vertexColor.push_back(vertexData[i + 5]);
+	}
+
+	//创建顶点buffer
+	glDeleteBuffers(1, &VBO);
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);					//先绑定，在用VAO传值时，就传送的是当前绑定的buffer
+
+	GLsizeiptr sumSize = 0;
+	sumSize += vertexPos.size() * sizeof(float);
+	sumSize += vertexColor.size() * sizeof(float);
+
+	//开辟空间
+	glBufferData(GL_ARRAY_BUFFER, sumSize, NULL, usage);
+
+	GLintptr offset = 0;
+	//初始化数据
+	glBufferSubData(GL_ARRAY_BUFFER, offset, vertexPos.size() * sizeof(float), &vertexPos[0]);
+	offset += vertexPos.size() * sizeof(float);
+
+	glBufferSubData(GL_ARRAY_BUFFER, offset, vertexColor.size() * sizeof(float), &vertexColor[0]);
+	offset += vertexColor.size() * sizeof(float);
+
+	GLint index = 0;
+	GLsizeiptr size = 0;
+	//还需要用glVertexAttribPointer更新顶点属性指针
+	glEnableVertexAttribArray(index);
+	glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)size);
+	index++;
+	size += vertexPos.size() * sizeof(float);
+
+	glEnableVertexAttribArray(index);
+	glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)size);
+	index++;
+	size += vertexColor.size() * sizeof(float);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+
+void ShaderDataInitTool::VertexDataUnpack(vector<float>& vertexData, vector<float>& vertexPos, vector<float>& vertexNormal, vector<float>& vertexTex)
+{
+	for (int i = 0; i < vertexData.size(); i = i + 8)
+	{
+		vertexPos.push_back(vertexData[i]);
+		vertexPos.push_back(vertexData[i + 1]);
+		vertexPos.push_back(vertexData[i + 2]);
+		vertexNormal.push_back(vertexData[i + 3]);
+		vertexNormal.push_back(vertexData[i + 4]);
+		vertexNormal.push_back(vertexData[i + 5]);
+		vertexTex.push_back(vertexData[i + 6]);
+		vertexTex.push_back(vertexData[i + 7]);
+	}
 }

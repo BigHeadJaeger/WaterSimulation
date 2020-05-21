@@ -130,9 +130,21 @@ void SimpleRenderer::Render(ShaderData* shaderData)
 	glDrawArrays(data->drawType, 0, data->drawUnitNumber);
 }
 
-
+void VCRenter::Render(ShaderData* shaderData)
+{
+	glUseProgram(shaderProgram.p);
+	VCShaderData* data = dynamic_cast<VCShaderData*>(shaderData);
+	glBindVertexArray(data->VAO);
+	//´«µÝ×ø±ê±ä»»¾ØÕó
+	SetUniform("worldViewProj", data->worldViewProj, shaderProgram);
+	SetUniform("world", data->world, shaderProgram);
+	SetUniform("worldInvTranspose", data->worldInvTranspose, shaderProgram);
+	glDrawArrays(data->drawType, 0, data->drawUnitNumber);
+}
 
 
 UE4Renderer* UE4Renderer::instance = NULL;
 SimpleRenderer* SimpleRenderer::instance = NULL;
 MPSRenderer* MPSRenderer::instance = NULL;
+VCRenter* VCRenter::instance = NULL;
+

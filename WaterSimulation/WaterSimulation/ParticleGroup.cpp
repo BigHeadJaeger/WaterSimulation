@@ -3,11 +3,11 @@
 void MPSWaterParticleGroup::InitParticles()
 {
 	//初始化MPS工具
-	InitMPSTool();
+	//InitMPSTool();
 	vec3 initPos = transformation.position;
 	vec3 offset = vec3(l0);									//粒子空间分布布局
 	int width, height, depth;								//粒子的长宽高排布
-	width = height = depth = 5;
+	width = height = depth = 3;
 
 	float highest = 0;										//找到最高点位置
 	if (offset.y > 0)
@@ -50,13 +50,14 @@ void MPSWaterParticleGroup::InitParticles()
 	particleWallNum = n;
 	//dummy
 	int dummyWidth = containerWidth + 2;
-	int dummyHeight = containerHeight;
+	int dummyHeight = containerHeight + 2;
 	int dummyDepth = containerDepth + 2;
 	positions.clear();
 
 	initPos -= offset;
 	n = UncoverHollowCubeDistribute(positions, initPos, offset, dummyWidth, dummyHeight, dummyDepth);
 	//第二层
+	dummyHeight += 2;
 	dummyWidth += 2;
 	dummyDepth += 2;
 	initPos -= offset;
@@ -76,97 +77,97 @@ void MPSWaterParticleGroup::InitParticles()
 	//更新邻接点关系
 	//UpdateAdjoin(range);
 	//设置每一个粒子的初始密度
-	SetInitialN0();
+	//SetInitialN0();
 
 
-	//此处计算所有粒子的初始压力
-	MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
-	vector<double> Right;					//存储每一个粒子的右端项
+	////此处计算所有粒子的初始压力
+	//MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
+	//vector<double> Right;					//存储每一个粒子的右端项
 
-	vector<vec3> posArray;					//记录k时刻所有粒子的位置
-	vector<vec3> posArray1;					//记录k时刻除去dummy的粒子的位置
-	vector<vec3> uArray;					//记录k时刻所有粒子的速度
-	vector<vec3> uArray1;					//记录k时刻除去dummy的粒子的速度
-	vector<vec3> tempUArray;				//记录忽略压力项后k+1时刻所有粒子的u*
-	vector<vec3> tempUArray1;				//记录忽略压力项后k+1时刻除去dummy的粒子的u*
-	vector<vec3> tempPosArray;				//记录忽略压力项后k+1时刻所有粒子的r*
-	vector<vec3> tempPosArray1;				//记录忽略压力项后k+1时刻除去dummy的粒子的r*
+	//vector<vec3> posArray;					//记录k时刻所有粒子的位置
+	//vector<vec3> posArray1;					//记录k时刻除去dummy的粒子的位置
+	//vector<vec3> uArray;					//记录k时刻所有粒子的速度
+	//vector<vec3> uArray1;					//记录k时刻除去dummy的粒子的速度
+	//vector<vec3> tempUArray;				//记录忽略压力项后k+1时刻所有粒子的u*
+	//vector<vec3> tempUArray1;				//记录忽略压力项后k+1时刻除去dummy的粒子的u*
+	//vector<vec3> tempPosArray;				//记录忽略压力项后k+1时刻所有粒子的r*
+	//vector<vec3> tempPosArray1;				//记录忽略压力项后k+1时刻除去dummy的粒子的r*
 
-	//1.2 计算隐式的P
-	vector<bool> surfaceJudgeArray;			//记录粒子的表面判断
-	vector<float> n0Array;					//记录粒子的初始密度
+	////1.2 计算隐式的P
+	//vector<bool> surfaceJudgeArray;			//记录粒子的表面判断
+	//vector<float> n0Array;					//记录粒子的初始密度
 
-	for (int i = 0; i < particles.size(); i++)
-	{
-		posArray.push_back(particles[i].position);
-		uArray.push_back(particles[i].speed);
-		if (i < (particleNumber + particleWallNum))
-		{
-			posArray1.push_back(particles[i].position);
-			uArray1.push_back(particles[i].speed);
-		}
-	}
-	//遍历粒子 获取临时的速度和位置（只有普通粒子需要计算，且计算的时候不需要dummy的相关数据,而wall粒子的速度和位置都不变）
-	for (int i = 0; i < (particleNumber + particleWallNum); i++)
-	{
-		if (i < particleNumber)
-		{
-			//计算临时速度u* 并更新临时位置r*
-			vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray1, posArray1, i, particles[i].n0), particles[i].speed);
-			tempUArray1.push_back(tempU);
+	//for (int i = 0; i < particles.size(); i++)
+	//{
+	//	posArray.push_back(particles[i].position);
+	//	uArray.push_back(particles[i].speed);
+	//	if (i < (particleNumber + particleWallNum))
+	//	{
+	//		posArray1.push_back(particles[i].position);
+	//		uArray1.push_back(particles[i].speed);
+	//	}
+	//}
+	////遍历粒子 获取临时的速度和位置（只有普通粒子需要计算，且计算的时候不需要dummy的相关数据,而wall粒子的速度和位置都不变）
+	//for (int i = 0; i < (particleNumber + particleWallNum); i++)
+	//{
+	//	if (i < particleNumber)
+	//	{
+	//		//计算临时速度u* 并更新临时位置r*
+	//		vec3 tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(uArray1, posArray1, i, particles[i].n0), particles[i].speed);
+	//		tempUArray1.push_back(tempU);
 
-			vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();
-			tempPosArray1.push_back(tempPos);
-		}
-		else
-		{
-			tempUArray1.push_back(vec3(0));						//wall粒子速度一直为0
-			tempPosArray1.push_back(particles[i].position);		//wall粒子位置保持不变
-		}
-	}
-	//为全部粒子临时值集合赋值
-	tempUArray = tempUArray1;
-	tempPosArray = tempPosArray1;
-	for (int i = (particleNumber + particleWallNum); i < particleTotalNum; i++)
-	{
-		tempUArray.push_back(vec3(0));
-		tempPosArray.push_back(particles[i].position);
-	}
+	//		vec3 tempPos = particles[i].position + tempU * mpsTool->GetDeltaT();
+	//		tempPosArray1.push_back(tempPos);
+	//	}
+	//	else
+	//	{
+	//		tempUArray1.push_back(vec3(0));						//wall粒子速度一直为0
+	//		tempPosArray1.push_back(particles[i].position);		//wall粒子位置保持不变
+	//	}
+	//}
+	////为全部粒子临时值集合赋值
+	//tempUArray = tempUArray1;
+	//tempPosArray = tempPosArray1;
+	//for (int i = (particleNumber + particleWallNum); i < particleTotalNum; i++)
+	//{
+	//	tempUArray.push_back(vec3(0));
+	//	tempPosArray.push_back(particles[i].position);
+	//}
 
 
-	//用临时速度和临时位置计算每个粒子对应的右端项
-	for (int i = 0; i < (particleNumber + particleWallNum); i++)
-	{
-		//普通粒子和wall粒子的右端项计算需要不同的粒子集合
-		//初始化的时候用旧的右端项方法
-		if (i < particleNumber)
-		{
-			//普通粒子不需要dummy
-			float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray1, i));
-			Right.push_back(resRight);
-		}
-		else
-		{
-			//wall 粒子用全部粒子集合
-			float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
-			Right.push_back(resRight);
-		}
-		
-		//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率，初始化的时候不需要再进行一次表面检测
-		surfaceJudgeArray.push_back(particles[i].isSurface);
-		n0Array.push_back(particles[i].n0);
-	}
+	////用临时速度和临时位置计算每个粒子对应的右端项
+	//for (int i = 0; i < (particleNumber + particleWallNum); i++)
+	//{
+	//	//普通粒子和wall粒子的右端项计算需要不同的粒子集合
+	//	//初始化的时候用旧的右端项方法
+	//	if (i < particleNumber)
+	//	{
+	//		//普通粒子不需要dummy
+	//		float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray1, i));
+	//		Right.push_back(resRight);
+	//	}
+	//	else
+	//	{
+	//		//wall 粒子用全部粒子集合
+	//		float resRight = mpsTool->OldImplicitLaplacianRight(particles[i].n0, particles[i].n0, mpsTool->DensityN(tempPosArray, i));
+	//		Right.push_back(resRight);
+	//	}
+	//	
+	//	//因为表面检测与右端项的计算不影响，放在同一个循环中提高效率，初始化的时候不需要再进行一次表面检测
+	//	surfaceJudgeArray.push_back(particles[i].isSurface);
+	//	n0Array.push_back(particles[i].n0);
+	//}
 
-	//1.2.2 解一个泊松方程(此时的计算排除dummy)
-	vector<double> resP = mpsTool->ImplicitCalculateP(tempPosArray1, n0Array, surfaceJudgeArray, Right);
-	//vector<double> resP1 = mpsTool->ImplicitCalculateP(tempPosArray1, n0Array, surfaceJudgeArray, Right);
-	for (int i = 0; i < (particleNumber + particleWallNum); i++)
-	{
-		if (particles[i].isSurface)
-			particles[i].pressure = 0;
-		else
-			particles[i].pressure = resP[i];
-	}
+	////1.2.2 解一个泊松方程(此时的计算排除dummy)
+	//vector<double> resP = mpsTool->ImplicitCalculateP(tempPosArray1, n0Array, surfaceJudgeArray, Right);
+	////vector<double> resP1 = mpsTool->ImplicitCalculateP(tempPosArray1, n0Array, surfaceJudgeArray, Right);
+	//for (int i = 0; i < (particleNumber + particleWallNum); i++)
+	//{
+	//	if (particles[i].isSurface)
+	//		particles[i].pressure = 0;
+	//	else
+	//		particles[i].pressure = resP[i];
+	//}
 }
 
 void MPSWaterParticleGroup::InitMPSTool()
@@ -258,6 +259,8 @@ void MPSWaterParticleGroup::UpdateAdjoin(float range)
 
 void MPSWaterParticleGroup::Update(float dt)
 {
+	shaderData->UpdateMatrix(transformation);
+	return;
 	////每一帧的计算需要先更新一下邻接关系
 	//UpdateAdjoin(range);
 
@@ -394,9 +397,39 @@ void MPSWaterParticleGroup::Update(float dt)
 
 void MPSWaterParticleGroup::Draw()
 {
-
+	// GL_POINTS
+	shaderData->SetDrawType(GL_POINTS);
+	renderer->Render(shaderData);
 }
 
 void MPSWaterParticleGroup::InitBufferData()
+{
+	vector<float> data;
+
+	for (int i = 0; i < particles.size(); i++)
+	{
+		vec3 color = vec3(0);
+		if (particles[i].isSurface)
+			color = vec3(255, 0, 0);
+		else if (particles[i].isDummy)
+			color = vec3(0, 255, 255);
+		else if (particles[i].isWall)
+			color = vec3(0, 255, 0);
+		else
+			color = vec3(0, 0, 255);
+
+		data.push_back(particles[i].position.x);
+		data.push_back(particles[i].position.y);
+		data.push_back(particles[i].position.z);
+		data.push_back(color.x);
+		data.push_back(color.y);
+		data.push_back(color.z);
+	}
+
+	shaderData->drawUnitNumber = data.size() / 6;
+	dynamic_cast<VCShaderData*>(shaderData)->InitVertexBuffer(data, GL_DYNAMIC_DRAW);
+}
+
+void MPSWaterParticleGroup::UpdateBufferData()
 {
 }

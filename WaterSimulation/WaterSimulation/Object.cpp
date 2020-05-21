@@ -63,6 +63,10 @@ void MeshObject::InitBufferData()
 	shaderData->InitVertexBuffer(data, true, false);
 }
 
+void MeshObject::UpdateBufferData()
+{
+}
+
 void MeshObject::Update(float dt)
 {
 	shaderData->UpdateMatrix(transformation);
@@ -77,21 +81,31 @@ void Object::SetRenderer(RENDERERTYPE type)
 {
 	switch (type)
 	{
-	case UE4RENDERER:
+	case UE4:
 		renderer = UE4Renderer::GetRenderer();
 		delete shaderData;
 		shaderData = new UE4ShaderData();
 		break;
-	case SIMPLERENDER:
+	case SIMPLE:
 		renderer = SimpleRenderer::GetRenderer();
 		delete shaderData;
 		shaderData = new SimpleShaderData();
 		break;
-	case MPSRENDERER:
+	case MPS:
+		break;
+	case VC:
+		renderer = VCRenter::GetRenderer();
+		delete shaderData;
+		shaderData = new VCShaderData();
 		break;
 	default:
 		break;
 	}
+}
+
+void Metaball::GetVertexInfo(vector<float>& verticesInfo, bool& provideNormal, bool& provideTex)
+{
+	marchingCube.GetMeshData(sourcePoints, verticesInfo, provideNormal, provideTex);
 }
 
 void Metaball::SetSourcePoints(vec3 firstPos, int w, int h, int d)
@@ -110,14 +124,21 @@ void Metaball::InitBufferData()
 	//当ball运动都超出最开始的定的边界时就不会有顶点信息产生
 	if (verticesInfo.size() != 0)
 	{
-		pointCount = verticesInfo.size() / 8;
+		pointCount = verticesInfo.size() / 8;		//每8个数据代表一个点的信息
 		shaderData->drawUnitNumber = pointCount;
 		shaderData->InitVertexBuffer(verticesInfo, provideNormal, provideTex);
 	}
-	//pointCount = verticesInfo.size() / 8;
+	//pointCount = verticesInfo.size() / 8;		//每8个数据代表一个点的信息
 	//shaderData->drawUnitNumber = pointCount;
 	//shaderData->InitVertexBuffer(verticesInfo, provideNormal, provideTex);
 }
+
+
+void Metaball::UpdateBufferData()
+{
+	InitBufferData();
+}
+
 
 void Metaball::Update(float dt)
 {
@@ -152,11 +173,12 @@ void Metaball::Update(float dt)
 	//{
 	//	
 	//}
-	InitBufferData();
+	UpdateBufferData();
 	shaderData->UpdateMatrix(transformation);
 }
 
 void Metaball::Draw()
 {
+	//shaderData->SetDrawType(GL_POINTS);
 	renderer->Render(shaderData);
 }

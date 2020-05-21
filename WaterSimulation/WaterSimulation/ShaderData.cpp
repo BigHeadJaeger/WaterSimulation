@@ -1,5 +1,6 @@
 #include "ShaderData.h"
 
+// 控制物体整体的运动
 void ShaderData::UpdateMatrix(Transform& t)
 {
 	world = translate(mat4(1.0), t.position);
@@ -14,10 +15,16 @@ void ShaderData::UpdateMatrix(Transform& t)
 	worldViewProj = MainCamera::GetInstance()->pro * MainCamera::GetInstance()->view * world;
 }
 
-void ShaderData::InitVertexBuffer(vector<float>& vertexData, bool providedNormal, bool providedTex)
+// VAO和VBO初始化、更新的接口
+void ShaderData::InitVertexBuffer(vector<float>& vertexData, bool providedNormal, bool providedTex, GLenum usage)
 {
 	ShaderDataInitTool* tool = ShaderDataInitTool::GetShaderDataInitTool();
-	tool->InitVertexBuffer(VAO, VBO, vertexData, providedNormal, providedTex);
+	tool->InitVertexBuffer(VAO, VBO, vertexData, providedNormal, providedTex, usage);
+}
+void ShaderData::UpdateVertexBuffer(vector<float>& vertexData, bool providedNormal, bool providedTex)
+{
+	ShaderDataInitTool* tool = ShaderDataInitTool::GetShaderDataInitTool();
+	tool->UpdateVertexBuffer(VAO, VBO, vertexData, providedNormal, providedTex);
 }
 
 void UE4ShaderData::InitTexture(TEXTURETYPE type, string texPath)
@@ -43,4 +50,10 @@ void UE4ShaderData::InitTexture(TEXTURETYPE type, string texPath)
 	default:
 		break;
 	}
+}
+
+void VCShaderData::InitVertexBuffer(vector<float>& vertexData, GLenum usage)
+{
+	ShaderDataInitTool* tool = ShaderDataInitTool::GetShaderDataInitTool();
+	tool->InitBufferVC(VAO, VBO, vertexData, usage);
 }

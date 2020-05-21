@@ -28,7 +28,7 @@ static int UncoverHollowCubeDistribute(vector<vec3>& result, vec3 initPos, vec3 
 		for (int z = 0; z < d; z++)
 		{
 			result.push_back(initPos + vec3(0, offset.y * y, offset.z * z));
-			result.push_back(initPos + vec3(offset.x * w, offset.y * y, offset.z * z));
+			result.push_back(initPos + vec3(offset.x * (w-1), offset.y * y, offset.z * z));
 		}
 
 	//正面和后面（一个z值保持初始，一个z值保持末端）
@@ -36,7 +36,7 @@ static int UncoverHollowCubeDistribute(vector<vec3>& result, vec3 initPos, vec3 
 		for (int y = 1; y < h; y++)
 		{
 			result.push_back(initPos + vec3(offset.x * x, offset.y * y, 0));
-			result.push_back(initPos + vec3(offset.x * x, offset.y * y, offset.z * d));
+			result.push_back(initPos + vec3(offset.x * x, offset.y * y, offset.z * (d - 1)));
 		}
 
 

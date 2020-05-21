@@ -54,6 +54,8 @@
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="SF_VertexColor.frag" />
+    <None Include="SF_VertexColor.vert" />
     <None Include="SimpleShaderFile.frag" />
     <None Include="SimpleShaderFile.vert" />
     <None Include="UE4ShaderFile.frag" />
@@ -84,7 +86,8 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseIntelMKL>Parallel</UseIntelMKL>
+    <UseIntelMKL>No</UseIntelMKL>
+    <UseILP64Interfaces>false</UseILP64Interfaces>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -112,8 +115,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\MyProgram\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\include;D:\MyProgram\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\MyProgram\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\Program\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\include;E:\Program\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Program\ComputerGraphics\WaterSimulation\WaterSimulation\Lib\64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

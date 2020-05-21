@@ -124,5 +124,11 @@
     <None Include="SimpleShaderFile.vert">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="SF_VertexColor.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="SF_VertexColor.frag">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

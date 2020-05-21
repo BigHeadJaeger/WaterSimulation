@@ -33,8 +33,11 @@ public:
 		drawType = GL_TRIANGLES;
 	}
 
+	void SetDrawType(GLenum type) { drawType = type; }
+
 	void UpdateMatrix(Transform& t);
-	void InitVertexBuffer(vector<float>& vertexData, bool providedNormal, bool providedTex);
+	void InitVertexBuffer(vector<float>& vertexData, bool providedNormal, bool providedTex, GLenum usage = GL_STATIC_DRAW);
+	void UpdateVertexBuffer(vector<float>& vertexData, bool providedNormal, bool providedTex);
 	virtual void Temp(){}
 };
 
@@ -75,4 +78,10 @@ public:
 	{
 		color = _color;
 	}
+};
+
+class VCShaderData : public ShaderData
+{
+public:
+	void InitVertexBuffer(vector<float>& vertexData, GLenum usage = GL_STATIC_DRAW);
 };

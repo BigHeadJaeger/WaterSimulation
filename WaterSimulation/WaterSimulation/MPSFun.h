@@ -6,7 +6,7 @@ using namespace glm;
 using namespace std;
 
 #include"Const.h"
-#include<mkl.h>
+//#include<mkl.h>
 #include<algorithm>
 #include<omp.h>
 
