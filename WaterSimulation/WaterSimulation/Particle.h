@@ -11,17 +11,36 @@ public:
 	float size;									//球形时指半径
 };
 
+enum ParticleType
+{
+	FLUID,
+	SURFACE,
+	WALL,
+	DUMMY
+};
+
 class MPSWaterParticle:public Particle
 {
 public:
 	vec3 speed;									//粒子的速度向量
 	float pressure;								//受到的压力
+
 	float n0;									//初始的密度值
+	float middleN;
+	// 三种初始密度n0
+	float n0ForNumberDensity;
+	float n0ForGradient;
+	float n0ForLambda;
+
+
 	float tho;									//当前的密度
 
-	bool isSurface;								//粒子是否为表面
-	bool isWall;								//粒子是否为墙
-	bool isDummy;								//粒子是否为虚拟墙面（作用是区分墙粒子和表面粒子）
+
+	ParticleType particleType;
+	//bool isFluid;								//是流体
+	//bool isSurface;								//粒子是否为表面
+	//bool isWall;								//粒子是否为墙
+	//bool isDummy;								//粒子是否为虚拟墙面（作用是区分墙粒子和表面粒子）
 
 	int index;									//记录自身的索引值
 	vector<int> adjoinParticleIndex;			//记录邻接粒子的索引
@@ -37,9 +56,12 @@ public:
 		life = 0;
 		size = 0;
 		index = -1;
-		isSurface = false;
-		isWall = false;
-		isDummy = false;
+		particleType = FLUID;
+		middleN = 0;
+		//isFluid = true;
+		//isSurface = false;
+		//isWall = false;
+		//isDummy = false;
 	}
 	MPSWaterParticle(vec3 _pos, vec3 _speed, float _pressure, float _size = 1, float _life = 0)
 	{
@@ -51,6 +73,6 @@ public:
 		index = -1;
 	}
 
-	void SurfaceAdjudge(float a, float g, float l0, float thoNow);
-	void OldSurfaceAdjudge(float b, float nNow);
+	//void SurfaceAdjudge(float a, float g, float l0, float thoNow);
+	//void OldSurfaceAdjudge(float b, float nNow);
 };

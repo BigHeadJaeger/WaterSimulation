@@ -24,6 +24,7 @@
     <ClInclude Include="DistributeFun.h" />
     <ClInclude Include="Interaction.h" />
     <ClInclude Include="MarchingCube.h" />
+    <ClInclude Include="MPSConst.h" />
     <ClInclude Include="MPSFun.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Particle.h" />
@@ -86,7 +87,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseIntelMKL>No</UseIntelMKL>
+    <UseIntelMKL>Parallel</UseIntelMKL>
     <UseILP64Interfaces>false</UseILP64Interfaces>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">

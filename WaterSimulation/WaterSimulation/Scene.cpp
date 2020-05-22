@@ -42,9 +42,9 @@ void MyScene::Init()
 	MPSWaterParticleGroup* water = new MPSWaterParticleGroup();
 	water->SetName("water");
 	water->SetRenderer(VC);
-	water->GetTransform().SetPosition(vec3(0));
-	water->SetDiameter(0.01);
-	water->SetViscosity(0.000001);
+	water->GetTransform().SetPosition(vec3(0, 0, 0));
+	//water->SetDiameter(0.01);
+	//water->SetViscosity(0.000001);
 	water->InitParticles();
 	water->InitBufferData();
 	//dynamic_cast<SimpleShaderData*>(water->GetShaderData())->SetColor(vec3(0, 0, 200));

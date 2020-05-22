@@ -9,6 +9,7 @@ using namespace std;
 #include"Particle.h"
 #include"DistributeFun.h"
 #include"MarchingCube.h"
+#include"Const.h"
 
 //粒子的建模接口(如果粒子需要进行建模之后再渲染，如metaball等)
 class IModelingParticle
@@ -38,13 +39,17 @@ class MPSWaterParticleGroup:public ParticleGroup,public IModelingParticle
 {
 protected:
 	//算法中粒子群体的属性
-	float l0;									//粒子的直径
-	float range;								//邻接粒子的判断依据
-	float viscosity;							//液体的粘度系数
+	float l0;									//粒子的直径同时也是空间排布依据
 	float a;									//松弛系数
 	int particleWallNum;						//墙粒子的个数
 	int particleDummyNum;						//dummy的粒子个数
-	int particleTotalNum;						//所有粒子的总和 
+	int particleTotalNum;						//所有粒子的总和
+
+	float n0ForNumberDensity;
+	float n0ForGradient;
+	float n0ForLambda;
+	float lambda0;
+
 
 	vector<MPSWaterParticle> particles;			//按照粒子 wall dummy的顺序依次放入
 
@@ -54,17 +59,15 @@ private:
 	void InitMPSTool();
 	//设置每一个粒子的初始密度
 	void SetInitialN0();
-	//更新粒子的邻接关系
-	void UpdateAdjoin(float range);
+	////更新粒子的邻接关系
+	//void UpdateAdjoin(float range);
 	//粒子群的建模接口实现
 	void Modeling() override;
 public:
 	MPSWaterParticleGroup()
 	{
 		particleNumber = 0;
-		l0 = 0;
-		range = 0;
-		viscosity = 0;
+		l0 = PARTICLE_DISTANCE;
 		a = 0.75;
 
 		marchingCube = NULL;
@@ -76,21 +79,10 @@ public:
 			delete marchingCube;
 	}
 
-	//设置粒子的直径
-	void SetDiameter(float d)
-	{
-		l0 = d;
-		//通过直径确定粒子之间的影响范围
-		range = 2.1 * l0;
-	}
-	//设置粘度系数
-	void SetViscosity(float v)
-	{
-		viscosity = v;
-	}
-
 	//初始化粒子群的属性
 	void InitParticles();
+
+	void ParticlesArrange();
 
 	void Update(float dt) override;
 

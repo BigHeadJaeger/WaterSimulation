@@ -6,7 +6,8 @@ using namespace glm;
 using namespace std;
 
 #include"Const.h"
-//#include<mkl.h>
+#include"MPSConst.h"
+#include<mkl.h>
 #include<algorithm>
 #include<omp.h>
 
@@ -18,25 +19,35 @@ private:
 
 	float Ds;				//维数
 	float reForDG;			//计算密度和梯度的re
-	float reForL;			//计算拉普拉斯的re
+	float reForD;			//计算粒子数密度的re
+	float reForG;			//计算梯度的re
+	float reForL;			//计算拉普拉斯的re同时也是lambda计算时的取值
 	float viscosity;		//粘度系数
+	float fluidDenstiy;		//流体密度
 	float gama;				//
 	float deltaT;			//时间间隔直接给定，而不是按照每帧的间隔来确定
+
+
 
 
 	vec3 vG;				//重力加速度的向量形式
 
 	MPSToolFun()
 	{
-		Ds = 3;
-		reForDG = 0;
-		reForL = 0;
-		viscosity = 0.000001;
-		gama = 0.01;
-		vG = vec3(0, -9.8, 0);
+		Ds = DIMENSION;
+		reForD = RADIUS_FOR_NUMBER_DENSITY;
+		reForG = RADIUS_FOR_GRADIENT;
+		//reForDG = ;
+		reForL = RADIUS_FOR_LAPLACIAN;
+		viscosity = KINEMATIC_VISCOSITY;
+		fluidDenstiy = FLUID_DENSITY;
+		gama = RELAXATION_COEFFICIENT_FOR_PRESSURE;
+		vG = vec3(GRAVITY_X, GRAVITY_Y, GRAVITY_Z);
+		deltaT = DELTA_TIME;
 	}
 
 public:
+	float testLambda0;
 	//内部私有计算函数
 	//Lambda函数
 	float Lambda(vector<vec3> r, int currentIndex);
@@ -64,23 +75,6 @@ public:
 		return mpsTool;
 	}
 
-	//void SetN0()
-	void SetRe(float l0)
-	{
-		reForDG = 2.1 * l0;
-		reForL = 3.1 * l0;
-	}
-
-	void SetViscosity(float v)
-	{
-		viscosity = v;
-	}
-
-	void SetDeltaT(float dt)
-	{
-		deltaT = dt;
-	}
-
 	float GetDeltaT()
 	{
 		return deltaT;
@@ -101,7 +95,9 @@ public:
 	//计算真实的u值
 	vec3 CalculateU(vec3 resLU, vec3 resGP, vec3 uNow, float tho);
 	//隐式计算P（解稀疏方程组）
-	vector<double> ImplicitCalculateP(vector<vec3>& r, vector<float>& n0Array, vector<bool>& isSurface, vector<double> Right);
+	vector<double> ImplicitCalculateP(vector<vec3>& r, float n0Array, vector<bool>& isSurface, vector<double> Right);
+
+	vec3 OldGradient(vector<vec3>& r, vector<double>& p, int currentIndex, float n0);
 };
 
 
@@ -117,8 +113,10 @@ inline T MPSToolFun::ExplicitLaplacian(vector<T>& phi, vector<vec3>& r, int curr
 		}
 	}
 
-	float lambda = Lambda(r, currentIndex);
+	//float lambda = Lambda(r, currentIndex);
 
-	res *= (2 * Ds / n0 * lambda);
+	//res *= (2 * Ds / n0 * lambda);
+	res *= (2 * Ds / n0 * testLambda0);
+	//res *= (2 * Ds / DensityN(r, currentIndex) * testLambda0);
 	return res;
 }
