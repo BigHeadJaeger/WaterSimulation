@@ -1,5 +1,10 @@
 #pragma once
-#include"MPSFun.h"
+//#include"MPSFun.h"
+#include<vector>
+#include<glm.hpp>
+#include<iostream>
+using namespace glm;
+using namespace std;
 
 //只包含最基本属性的抽象粒子
 class Particle

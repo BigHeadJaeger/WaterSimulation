@@ -1,5 +1,15 @@
+#define _CRT_SECURE_NO_WARNINGS
 #pragma once
+
+//#include<amp.h>
+#include<omp.h>
+#include<math.h>
+#include <stdio.h>
+
 #include"ParticleGroup.h"
+#include"MPSConst.h"
+
+//using namespace concurrency;.
 
 //MPS算法的水粒子群
 class MPSWaterParticleGroup :public ParticleGroup, public IModelingParticle
@@ -30,6 +40,11 @@ private:
 	//void UpdateAdjoin(float range);
 	//粒子群的建模接口实现
 	void Modeling() override;
+
+
+
+
+
 public:
 	MPSWaterParticleGroup()
 	{
