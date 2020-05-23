@@ -11,6 +11,8 @@ using namespace std;
 #include<algorithm>
 #include<omp.h>
 
+//#include"MPSWaterParticleGroup.h"
+
 class MPSToolFun
 {
 private:

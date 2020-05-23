@@ -66,6 +66,9 @@
     <ClInclude Include="MPSConst.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="MPSWaterParticleGroup.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Particle.cpp">
@@ -111,6 +114,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MarchingCube.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSWaterParticleGroup.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

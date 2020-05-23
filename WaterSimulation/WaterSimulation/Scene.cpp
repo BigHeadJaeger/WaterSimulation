@@ -20,7 +20,7 @@ void MyScene::Init()
 
 	//初始化主相机
 	//mainCamera = new Camera();
-	MainCamera::GetInstance()->Init(vec3(0, 0, 1), vec3(0, 0, 0));
+	MainCamera::GetInstance()->Init(vec3(0, 0, 2), vec3(0, 0, 0));
 
 	//SetDrawMode(drawMode.isLine, false);
 	drawMode.isLine = false;

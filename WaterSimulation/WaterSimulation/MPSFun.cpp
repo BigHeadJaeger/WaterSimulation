@@ -57,8 +57,8 @@ vector<double> MPSToolFun::ImplicitCalculateP(vector<vec3>& r, float n0, vector<
 			{
 				double w = WeightFun(distance(r[j], r[i]), reForL);
 				coeffArray[j] = w * con;
-				currentRowCoeff += coeffArray[j];
-				coeffArray[j] = -coeffArray[j];
+				currentRowCoeff -= coeffArray[j];
+				//coeffArray[j] = -coeffArray[j];
 			}
 		}
 		coeffArray[i] = currentRowCoeff;
