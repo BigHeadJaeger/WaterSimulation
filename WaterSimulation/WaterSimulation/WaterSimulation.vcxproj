@@ -26,6 +26,7 @@
     <ClInclude Include="MarchingCube.h" />
     <ClInclude Include="MPSConst.h" />
     <ClInclude Include="MPSFun.h" />
+    <ClInclude Include="MPSWaterParticleGroup.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleGroup.h" />
@@ -43,6 +44,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MarchingCube.cpp" />
     <ClCompile Include="MPSFun.cpp" />
+    <ClCompile Include="MPSWaterParticleGroup.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleGroup.cpp" />
@@ -135,8 +137,9 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <PreprocessorDefinitions>_USE_MATH_DEFINES;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

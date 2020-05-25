@@ -1,5 +1,10 @@
 #pragma once
-#include"MPSFun.h"
+//#include"MPSFun.h"
+#include<vector>
+#include<glm.hpp>
+#include<iostream>
+using namespace glm;
+using namespace std;
 
 //只包含最基本属性的抽象粒子
 class Particle
@@ -13,10 +18,11 @@ public:
 
 enum ParticleType
 {
-	FLUID,
-	SURFACE,
-	WALL,
-	DUMMY
+	ASDASD,
+	//FLUID,
+	//SURFACE,
+	//WALL,
+	//DUMMY
 };
 
 class MPSWaterParticle:public Particle
@@ -36,7 +42,7 @@ public:
 	float tho;									//当前的密度
 
 
-	ParticleType particleType;
+	//ParticleType particleType;
 	//bool isFluid;								//是流体
 	//bool isSurface;								//粒子是否为表面
 	//bool isWall;								//粒子是否为墙
@@ -56,7 +62,7 @@ public:
 		life = 0;
 		size = 0;
 		index = -1;
-		particleType = FLUID;
+		//particleType = FLUID;
 		middleN = 0;
 		//isFluid = true;
 		//isSurface = false;
