@@ -5,7 +5,6 @@ void initializeParticlePositionAndVelocity_for3dim(void);
 void calculateConstantParameter(void);
 void calculateNZeroAndLambda(void);
 double weight(double distance, double re);
-void mainLoopOfSimulation(void);
 void calculateGravity(void);
 void calculateViscosity(void);
 void moveParticle(void);
@@ -23,8 +22,6 @@ void removeNegativePressure(void);
 void setMinimumPressure(void);
 void calculatePressureGradient(void);
 void moveParticleUsingPressureGradient(void);
-//void writeData_inProfFormat(void);
-//void writeData_inVtuFormat(void);
 static double AccelerationX[ARRAY_SIZE];
 static double AccelerationY[ARRAY_SIZE];
 static double AccelerationZ[ARRAY_SIZE];
@@ -55,22 +52,7 @@ double N0_forLaplacian;
 double Lambda;
 double collisionDistance, collisionDistance2;
 double FluidDensity;
-
-//int main(void) {
-//
-//    printf("\n*** START MPS-SIMULATION ***\n");
-//    if (DIM == 2) {
-//        initializeParticlePositionAndVelocity_for2dim();
-//    }
-//    else {
-//        initializeParticlePositionAndVelocity_for3dim();
-//    }
-//    calculateConstantParameter();
-//    mainLoopOfSimulation();
-//    printf("*** END ***\n\n");
-//    return 0;
-//
-//}
+int N0Count;
 
 
 void initializeParticlePositionAndVelocity_for2dim(void) {
@@ -109,7 +91,7 @@ void initializeParticlePositionAndVelocity_for2dim(void) {
                 flagOfParticleGeneration = OFF;
             }
 
-            if (((x > 0.0 + EPS) && (x <= 0.25 + EPS)) && ((y > 0.0 + EPS) && (y <= 0.50 + EPS))) {  /* fluid region */
+            if (((x > 0.0 + EPS) && (x <= 0.25 + EPS)) && ((y > 0.0 + EPS) && (y <= 0.30 + EPS))) {  /* fluid region */
                 ParticleType[i] = FLUID;
                 flagOfParticleGeneration = ON;
             }
@@ -123,7 +105,6 @@ void initializeParticlePositionAndVelocity_for2dim(void) {
     NumberOfParticles = i;
     for (i = 0; i < NumberOfParticles; i++) { VelocityX[i] = 0.0; VelocityY[i] = 0.0; VelocityZ[i] = 0.0; }
 }
-
 
 void initializeParticlePositionAndVelocity_for3dim(void) {
     int iX, iY, iZ;
@@ -185,7 +166,6 @@ void initializeParticlePositionAndVelocity_for3dim(void) {
     for (i = 0; i < NumberOfParticles; i++) { VelocityX[i] = 0.0; VelocityY[i] = 0.0; VelocityZ[i] = 0.0; }
 }
 
-
 void calculateConstantParameter(void) {
 
     Re_forParticleNumberDensity = RADIUS_FOR_NUMBER_DENSITY;
@@ -201,7 +181,6 @@ void calculateConstantParameter(void) {
     FileNumber = 0;
     Time = 0.0;
 }
-
 
 void calculateNZeroAndLambda(void) {
     int iX, iY, iZ;
@@ -222,6 +201,8 @@ void calculateNZeroAndLambda(void) {
     Lambda = 0.0;
     xi = 0.0;  yi = 0.0;  zi = 0.0;
 
+    N0Count = 0;
+
     for (iX = -4; iX < 5; iX++) {
         for (iY = -4; iY < 5; iY++) {
             for (iZ = iZ_start; iZ < iZ_end; iZ++) {
@@ -231,6 +212,10 @@ void calculateNZeroAndLambda(void) {
                 zj = PARTICLE_DISTANCE * (double)(iZ);
                 distance2 = (xj - xi) * (xj - xi) + (yj - yi) * (yj - yi) + (zj - zi) * (zj - zi);
                 distance = sqrt(distance2);
+                if (weight(distance, Re_forParticleNumberDensity) != 0)
+                {
+                    N0Count++;
+                }
                 N0_forParticleNumberDensity += weight(distance, Re_forParticleNumberDensity);
                 N0_forGradient += weight(distance, Re_forGradient);
                 N0_forLaplacian += weight(distance, Re_forLaplacian);
@@ -254,33 +239,6 @@ double weight(double distance, double re) {
     return weightIJ;
 }
 
-
-void mainLoopOfSimulation(void) {
-    //int iTimeStep = 0;
-
-    //writeData_inVtuFormat();
-    //writeData_inProfFormat();
-
-    //while (1) {
-    //    calculateGravity();
-    //    calculateViscosity();
-    //    moveParticle();
-    //    collision();
-    //    calculatePressure();
-    //    calculatePressureGradient();
-    //    moveParticleUsingPressureGradient();
-    //    iTimeStep++;
-    //    Time += DT;
-    //    if ((iTimeStep % OUTPUT_INTERVAL) == 0) {
-    //        printf("TimeStepNumber: %4d   Time: %lf(s)   NumberOfParticles: %d\n", iTimeStep, Time, NumberOfParticles);
-    //        writeData_inVtuFormat();
-    //        writeData_inProfFormat();
-    //    }
-    //    if (Time >= FINISH_TIME) { break; }
-    //}
-}
-
-
 void calculateGravity(void) {
     int i;
 #pragma omp parallel for
@@ -298,10 +256,7 @@ void calculateGravity(void) {
     }
 }
 
-
 void calculateViscosity(void) {
-
-
     double a;
 
     a = (KINEMATIC_VISCOSITY) * (2.0 * DIM) / (N0_forLaplacian * Lambda);
@@ -338,7 +293,6 @@ void calculateViscosity(void) {
     }
 }
 
-
 void moveParticle(void) {
 #pragma omp parallel for
     for (int i = 0; i < NumberOfParticles; i++) {
@@ -356,7 +310,6 @@ void moveParticle(void) {
         AccelerationZ[i] = 0.0;
     }
 }
-
 
 void collision(void) {
     int    i, j;
@@ -423,7 +376,6 @@ void collision(void) {
     }
 }
 
-
 void calculatePressure(void) {
     calculateParticleNumberDensity();
     setBoundaryCondition();
@@ -433,7 +385,6 @@ void calculatePressure(void) {
     removeNegativePressure();
     setMinimumPressure();
 }
-
 
 void calculateParticleNumberDensity(void) {
     //int    i, j;
@@ -458,7 +409,6 @@ void calculateParticleNumberDensity(void) {
     }
 }
 
-
 void setBoundaryCondition(void) {
     
     double n0 = N0_forParticleNumberDensity;
@@ -467,12 +417,29 @@ void setBoundaryCondition(void) {
 #pragma omp parallel for
     for (int i = 0; i < NumberOfParticles; i++) {
         //int temp = ParticleType[i];
+        float count = 0;
+        for (int j = 0; j < NumberOfParticles; j++)
+        {
+            double distance, distance2;
+            double xij, yij, zij;
+            xij = PositionX[j] - PositionX[i];
+            yij = PositionY[j] - PositionY[i];
+            zij = PositionZ[j] - PositionZ[i];
+            distance2 = (xij * xij) + (yij * yij) + (zij * zij);
+            distance = sqrt(distance2);
+            if (distance < Re_forParticleNumberDensity)
+                count++;
+        }
+
+
         if (ParticleType[i] == GHOST || ParticleType[i] == DUMMY_WALL) {
             BoundaryCondition[i] = GHOST_OR_DUMMY;
         }
-        else if (ParticleNumberDensity[i] < beta * n0) {
+        else if (count < 0.95 * N0Count) {
             BoundaryCondition[i] = SURFACE_PARTICLE;
             //ParticleType[i] = SURFACE;
+            //count < 0.95 * N0Count
+            //ParticleNumberDensity[i] < beta * n0
         }
         else {
             //ParticleType[i] = temp;
@@ -480,7 +447,6 @@ void setBoundaryCondition(void) {
         }
     }
 }
-
 
 void setSourceTerm(void) {
     double n0 = N0_forParticleNumberDensity;
@@ -498,7 +464,6 @@ void setSourceTerm(void) {
         }
     }
 }
-
 
 void setMatrix(void) {
 
@@ -537,9 +502,8 @@ void setMatrix(void) {
         }
         CoefficientMatrix[i * n + i] += (COMPRESSIBILITY) / (DT * DT);
     }
-    exceptionalProcessingForBoundaryCondition();
+    //exceptionalProcessingForBoundaryCondition();
 }
-
 
 void exceptionalProcessingForBoundaryCondition(void) {
     /* If tere is no Dirichlet boundary condition on the fluid,
@@ -547,7 +511,6 @@ void exceptionalProcessingForBoundaryCondition(void) {
     checkBoundaryCondition();
     increaseDiagonalTerm();
 }
-
 
 void checkBoundaryCondition(void) {
     int i, j, count;
@@ -594,7 +557,6 @@ void checkBoundaryCondition(void) {
     }
 }
 
-
 void increaseDiagonalTerm(void) {
     int i;
     int n = NumberOfParticles;
@@ -605,7 +567,6 @@ void increaseDiagonalTerm(void) {
         }
     }
 }
-
 
 void solveSimultaniousEquationsByGaussEliminationMethod(void) {
     //int    i, j, k;
@@ -642,9 +603,19 @@ void solveSimultaniousEquationsByGaussEliminationMethod(void) {
             sumOfTerms += CoefficientMatrix[i * n + j] * Pressure[j];
         }
         Pressure[i] = (SourceTerm[i] - sumOfTerms) / CoefficientMatrix[i * n + i];
-    }
-}
 
+
+    }
+
+    //for (int i = 0; i < NumberOfParticles; i++)
+    //{
+    //    if (BoundaryCondition[i] == INNER_PARTICLE && ParticleType[i] == FLUID)
+    //    {
+    //        cout << Pressure[i] << endl;
+    //    }
+    //}
+
+}
 
 void removeNegativePressure(void) {
     int i;
@@ -653,7 +624,6 @@ void removeNegativePressure(void) {
         if (Pressure[i] < 0.0)Pressure[i] = 0.0;
     }
 }
-
 
 void setMinimumPressure(void) {
     double xij, yij, zij, distance2;
@@ -676,7 +646,6 @@ void setMinimumPressure(void) {
         }
     }
 }
-
 
 void calculatePressureGradient(void) {
     int    i, j;
@@ -716,7 +685,6 @@ void calculatePressureGradient(void) {
     }
 }
 
-
 void moveParticleUsingPressureGradient(void) {
     int i;
 
@@ -736,7 +704,6 @@ void moveParticleUsingPressureGradient(void) {
     }
 }
 
-
 void MPSWaterParticleGroup::InitParticles()
 {
     printf("\n*** START MPS-SIMULATION ***\n");
@@ -749,123 +716,14 @@ void MPSWaterParticleGroup::InitParticles()
     calculateConstantParameter();
 
     printf("*** END ***\n\n");
-    //return 0;
 
-    //calculateParticleNumberDensity();
+    //calculateGravity();
+    //calculateViscosity();
+    ////moveParticle();
+    ////collision();
     //calculatePressure();
-
-	//初始化MPS工具
-	//InitMPSTool();
-	//ParticlesArrange();
-	//SetInitialN0();
-}
-
-//void MPSWaterParticleGroup::ParticlesArrange()
-//{
-//	vec3 initPos = transformation.position;
-//	vec3 offset = vec3(l0);									//粒子空间分布布局
-//	int width, height, depth;								//粒子的长宽高排布
-//	width = height = depth = 3;
-//
-//	height = 4;
-//
-//	float highest = 0;										//找到最高点位置
-//	if (offset.y > 0)
-//		highest = initPos.y + (height - 1) * offset.y;
-//	else
-//		highest = initPos.y;
-//	vector<vec3> positions;
-//	int n = 0;
-//	n = CubeDistribute(positions, initPos, offset, width, height, depth);
-//	for (int i = 0; i < n; i++)
-//	{
-//		//初始化当前粒子并push进去
-//		MPSWaterParticle R;
-//		//此处指定粒子属性 位置
-//		R.position = positions[i];
-//		//如果这个粒子在最上面则标记为表面粒子
-//		if (positions[i].y == highest)
-//			R.particleType = SURFACE;
-//		else
-//			R.particleType = FLUID;
-//		R.index = i;
-//		particles.push_back(R);
-//	}
-//	particleNumber = n;
-//
-//	//还需要初始化粒子墙以及dummy wall	(可以看成再创建1+2层空心无盖的cube)   ps:要确保容器包围住所有的粒子
-//	//wall
-//	int containerWidth = width + 2;
-//	int containerHeight = height + 3;
-//	int containerDepth = depth + 2;
-//	initPos -= offset;
-//	positions.clear();
-//	n = UncoverHollowCubeDistribute(positions, initPos, offset, containerWidth, containerHeight, containerDepth);
-//	for (int i = 0; i < n; i++)
-//	{
-//		MPSWaterParticle R;
-//		R.position = positions[i];
-//		R.particleType = WALL;
-//		R.index = i + particleNumber;				//加上之前已经有的索引偏移量
-//		particles.push_back(R);
-//	}
-//	particleWallNum = n;
-//
-//	containerWidth += 2;
-//	containerHeight += 2;
-//	containerDepth += 2;
-//	initPos -= offset;
-//	positions.clear();
-//	n = UncoverHollowCubeDistribute(positions, initPos, offset, containerWidth, containerHeight, containerDepth);
-//	for (int i = 0; i < n; i++)
-//	{
-//		MPSWaterParticle R;
-//		R.position = positions[i];
-//		R.particleType = WALL;
-//		R.index = i + particleNumber;				//加上之前已经有的索引偏移量
-//		particles.push_back(R);
-//	}
-//	particleWallNum += n;
-//
-//	//dummy
-//	int dummyWidth = containerWidth + 2;
-//	int dummyHeight = containerHeight + 2;
-//	int dummyDepth = containerDepth + 2;
-//	positions.clear();
-//	initPos -= offset;
-//
-//	n = UncoverHollowCubeDistribute(positions, initPos, offset, dummyWidth, dummyHeight, dummyDepth);
-//	//第二层
-//	dummyHeight += 1;
-//	dummyWidth += 2;
-//	dummyDepth += 2;
-//	initPos -= offset;
-//
-//	n += UncoverHollowCubeDistribute(positions, initPos, offset, dummyWidth, dummyHeight, dummyDepth);
-//
-//	//dummyHeight += 1;
-//	//dummyWidth += 2;
-//	//dummyDepth += 2;
-//	//initPos -= offset;
-//
-//	//n += UncoverHollowCubeDistribute(positions, initPos, offset, dummyWidth, dummyHeight, dummyDepth);
-//	for (int i = 0; i < n; i++)
-//	{
-//		MPSWaterParticle R;
-//		R.position = positions[i];
-//		R.particleType = DUMMY;
-//		R.index = i + particleNumber + particleWallNum;				//加上之前已经有的索引偏移量
-//		particles.push_back(R);
-//	}
-//
-//	particleDummyNum = n;
-//
-//	particleTotalNum = particleNumber + particleDummyNum + particleWallNum;
-//}
-
-void MPSWaterParticleGroup::InitMPSTool()
-{
-	//MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
+    //calculatePressureGradient();
+    //moveParticleUsingPressureGradient();
 }
 
 void MPSWaterParticleGroup::Modeling()
@@ -881,105 +739,13 @@ void MPSWaterParticleGroup::Modeling()
 	bool provideTex;
 	marchingCube = new MarchingCube();
 	marchingCube->GetMeshData(posArray, verticesInfo, provideNormal, provideTex);
-	//MarchingCube::GetInstance()->GetMeshData(posArray, verticesInfo, provideNormal, provideTex);
 
 	shaderData->InitVertexBuffer(verticesInfo, provideNormal, provideTex);
 }
 
-// 计算对应的3个n0值，计算方法为假设出一个被完全包围在中间的粒子（粒子影响范围内充满粒子），用这个粒子的密度作为初始密度
-void MPSWaterParticleGroup::SetInitialN0()
-{
-	//MPSToolFun* tool = MPSToolFun::GetMPSTool();
-
-	//vec3 ri(0, 0, 0), rj(0, 0, 0);
-	//vec3 r_min(-4);
-	//vec3 r_max(5);
-	//double dis;
-
-	//if (DIMENSION == 2) {
-	//	r_min.z = 0;
-	//	r_max.z = 1;
-	//}
-
-	////r_min.z = 0;
-	////r_max.z = 1;
-
-	//for (int x = r_min.x; x < r_max.x; ++x)
-	//{
-	//	for (int y = r_min.y; y < r_max.y; ++y)
-	//	{
-	//		for (int z = r_min.z; z < r_max.z; ++z)
-	//		{
-	//			if (((x == 0) && (y == 0)) && (z == 0))continue;
-	//			rj = (float)l0 * vec3(x, y, z);
-	//			dis = distance(rj, ri);
-
-	//			n0ForNumberDensity += tool->WeightFun(dis, RADIUS_FOR_NUMBER_DENSITY);
-	//			n0ForGradient += tool->WeightFun(dis, RADIUS_FOR_GRADIENT);
-	//			//n0ForLambda += dis * dis * tool->WeightFun(dis, RADIUS_FOR_LAPLACIAN);
-	//			n0ForLambda += tool->WeightFun(dis, RADIUS_FOR_LAPLACIAN);
-
-	//			lambda0 += dis * dis * tool->WeightFun(dis, RADIUS_FOR_LAPLACIAN);
-	//		}
-	//	}
-	//}
-
-	//lambda0 /= n0ForLambda;
-
-	//tool->testLambda0 = lambda0;
-
-
-}
-
-//void MPSWaterParticleGroup::UpdateAdjoin(float range)
-//{
-//	int num1 = particleNumber + particleWallNum;
-//	int num2 = particles.size();
-//	//邻接粒子中普通粒子不需要考虑dummy，wall粒子都要考虑
-//	for (int i = 0; i < num1; i++)
-//	{
-//		particles[i].adjoinParticleIndex.clear();
-//		if (i < particleNumber)
-//		{
-//			//普通粒子的处理
-//			for (int j = 0; j < num1; j++)
-//			{
-//				if (j != i)
-//				{
-//					vec3 pos1 = particles[j].position;
-//					if (distance(pos1, particles[i].position) <= range)
-//						particles[i].adjoinParticleIndex.push_back(j);
-//				}
-//			}
-//		}
-//		else
-//		{
-//			//wall粒子的处理
-//			for (int j = 0; j < num2; j++)
-//			{
-//				if (j != i)
-//				{
-//					vec3 pos1 = particles[j].position;
-//					if (distance(pos1, particles[i].position) <= range)
-//						particles[i].adjoinParticleIndex.push_back(j);
-//				}
-//			}
-//		}
-//	}
-//
-//}
-
-
-
-
-
-
-
-
-
 void MPSWaterParticleGroup::Update(float dt)
 {
-    cout <<  1 / dt << endl;
+    //cout <<  1 / dt << endl;
     //int iTimeStep = 0;
     shaderData->UpdateMatrix(transformation);
 	//return;
@@ -991,310 +757,8 @@ void MPSWaterParticleGroup::Update(float dt)
     calculatePressure();
     calculatePressureGradient();
     moveParticleUsingPressureGradient();
-
-
-    //iTimeStep++;
-    //Time += DT;
-    //if ((iTimeStep % OUTPUT_INTERVAL) == 0) {
-    //    printf("TimeStepNumber: %4d   Time: %lf(s)   NumberOfParticles: %d\n", iTimeStep, Time, NumberOfParticles);
-    //    writeData_inVtuFormat();
-    //    writeData_inProfFormat();
-    //}
-    //if (Time >= FINISH_TIME) { break; }
     InitBufferData();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//void MPSWaterParticleGroup::Update(float dt)
-//{
-//	shaderData->UpdateMatrix(transformation);
-//	//return;
-//	MPSToolFun* mpsTool = MPSToolFun::GetMPSTool();
-//	//计算显示步骤（忽略压力项的第一次速度坐标校正）
-//
-//	vector<vec3> initUArrayWallAndFluid;			// 时间步n的速度集合
-//	vector<vec3> initPArrayWallAndFluid;			// 时间步n的位置集合
-//	vector<vec3> middleUArray;						//
-//	vector<vec3> middlePArray;						//
-//
-//	vector<vec3> middlePAllArray;					// 所有粒子的中间值坐标（用来计算Wall的中间密度）
-//
-//	vector<double> Right;					//存储每一个粒子的右端项
-//	vector<bool> ignoreArray;				// 压力泊松方程中需要忽略的项（surface）
-//
-//	for (int i = 0; i < particleNumber + particleWallNum; i++)
-//	{
-//		initUArrayWallAndFluid.push_back(particles[i].speed);
-//		initPArrayWallAndFluid.push_back(particles[i].position);
-//	}
-//
-//	// 计算每个流体粒子的中间速度
-//	for (int i = 0; i < particleNumber + particleWallNum; i++)
-//	{
-//		vec3 tempU = vec3(particles[i].speed);
-//		vec3 tempPos = vec3(particles[i].position);
-//		if (i < particleNumber)
-//		{
-//			tempU = mpsTool->TempU(mpsTool->ExplicitLaplacian(initUArrayWallAndFluid, initPArrayWallAndFluid, i, n0ForLambda), particles[i].speed);
-//			//tempPos = particles[i].position + (float)0.5 * (tempU + particles[i].speed) * (float)DELTA_TIME;
-//			tempPos = particles[i].position + tempU * (float)DELTA_TIME;
-//		}
-//
-//
-//		middleUArray.push_back(tempU);
-//		middlePArray.push_back(tempPos);
-//
-//		middlePAllArray.push_back(tempPos);
-//	}
-//
-//	// 将dummy补齐
-//	for (int i = particleNumber + particleWallNum; i < particleTotalNum; i++)
-//		middlePAllArray.push_back(particles[i].position);
-//
-//	// Fluid的中间粒子数密度
-//	for (int i = 0; i < particleNumber; i++)
-//	{
-//		float tempN = mpsTool->DensityN(middlePArray, i);
-//		particles[i].middleN = tempN;
-//		//cout << n0ForNumberDensity << " " << tempN << endl;
-//		// 表面检测
-//		if (tempN < n0ForNumberDensity * THRESHOLD_RATIO_OF_NUMBER_DENSITY)
-//		{
-//			particles[i].particleType = SURFACE;
-//			ignoreArray.push_back(true);
-//		}
-//		else
-//		{
-//			particles[i].particleType == FLUID;
-//			ignoreArray.push_back(false);
-//		}
-//
-//
-//
-//
-//	}
-//	// Wall的中间粒子数密度
-//	for (int i = particleNumber; i < particleNumber + particleWallNum; i++)
-//	{
-//		float tempN = mpsTool->DensityN(middlePAllArray, i);
-//		particles[i].middleN = tempN;
-//		ignoreArray.push_back(false);
-//		if (tempN < n0ForNumberDensity * THRESHOLD_RATIO_OF_NUMBER_DENSITY)
-//		{
-//			particles[i].particleType = SURFACE;
-//			ignoreArray.push_back(true);
-//		}
-//		else
-//		{
-//			particles[i].particleType == WALL;
-//			ignoreArray.push_back(false);
-//		}
-//	}
-//
-//
-//	//for (int i = 0; i < particleNumber + particleWallNum; i++)
-//	//{
-//	//	particles[i].speed = middleUArray[i];
-//	//	particles[i].position = middlePArray[i];
-//	//}
-//
-//	//InitBufferData();
-//	//return;
-//	vector<double> SourceTerm;
-//	SourceTerm.resize(5000, 0);
-//
-//	int i;
-//	double n0 = n0ForNumberDensity;
-//	double NumberOfParticles = particles.size();
-//	double gamma = 0.2;
-//
-//	for (i = 0; i < NumberOfParticles; i++) {
-//		SourceTerm[i] = 0.0;
-//		if (particles[i].particleType == DUMMY) continue;
-//		if (particles[i].particleType == WALL || particles[i].particleType == FLUID) {
-//			SourceTerm[i] = gamma * (1.0 / (DELTA_TIME * DELTA_TIME)) * ((particles[i].middleN - n0) / n0);
-//		}
-//		else if (particles[i].particleType == SURFACE) {
-//			SourceTerm[i] = 0.0;
-//		}
-//	}
-//
-//
-//
-//	vector<double> CoefficientMatrix;
-//
-//
-//	CoefficientMatrix.resize(25000000, 0);
-//
-//
-//	double xij, yij, zij;
-//	double distance, distance2;
-//	double coefficientIJ;
-//
-//
-//	int j;
-//	double a;
-//	int n = particles.size();
-//
-//	for (i = 0; i < NumberOfParticles; i++) {
-//		for (j = 0; j < NumberOfParticles; j++) {
-//			CoefficientMatrix[i * n + j] = 0.0;
-//		}
-//	}
-//
-//	a = 2.0 * DIMENSION / (n0 * lambda0);
-//	for (i = 0; i < NumberOfParticles; i++) {
-//		if (particles[i].particleType == WALL || particles[i].particleType == FLUID)
-//		{
-//			for (j = 0; j < NumberOfParticles; j++) {
-//				if ((j == i) || (particles[j].particleType == DUMMY)) continue;
-//				xij = particles[j].position.x - particles[i].position.x;
-//				yij = particles[j].position.y - particles[i].position.y;
-//				zij = particles[j].position.z - particles[i].position.z;
-//				distance2 = (xij * xij) + (yij * yij) + (zij * zij);
-//				distance = sqrt(distance2);
-//				if (distance >= RADIUS_FOR_LAPLACIAN)continue;
-//				coefficientIJ = a * mpsTool->WeightFun(distance, RADIUS_FOR_LAPLACIAN) / FLUID_DENSITY;
-//				CoefficientMatrix[i * n + j] = (-1.0) * coefficientIJ;
-//				CoefficientMatrix[i * n + i] += coefficientIJ;
-//			}
-//			CoefficientMatrix[i * n + i] += (0.45E-9) / (DELTA_TIME * DELTA_TIME);
-//
-//		}
-//		else
-//		{
-//			continue;
-//		}
-//;
-//	}
-//
-//	int k;
-//	double c;
-//	double sumOfTerms;
-//	//int    n = NumberOfParticles;
-//
-//	for (i = 0; i < n; i++) {
-//		particles[i].pressure = 0.0;
-//	}
-//	for (i = 0; i < n - 1; i++) {
-//
-//		if (particles[i].particleType == WALL || particles[i].particleType == FLUID)
-//		{
-//			for (j = i + 1; j < n; j++) {
-//				if (particles[j].particleType == DUMMY) continue;
-//				c = CoefficientMatrix[j * n + i] / CoefficientMatrix[i * n + i];
-//				for (k = i + 1; k < n; k++) {
-//					CoefficientMatrix[j * n + k] -= c * CoefficientMatrix[i * n + k];
-//				}
-//				SourceTerm[j] -= c * SourceTerm[i];
-//			}
-//		}
-//		//if (BoundaryCondition[i] != INNER_PARTICLE) continue;
-//	}
-//	for (i = n - 1; i >= 0; i--) {
-//		if (particles[i].particleType == WALL || particles[i].particleType == FLUID)
-//		{
-//			sumOfTerms = 0.0;
-//			for (j = i + 1; j < n; j++) {
-//				if (particles[j].particleType == DUMMY) continue;
-//				sumOfTerms += CoefficientMatrix[i * n + j] * particles[j].pressure;
-//			}
-//			particles[i].pressure = (SourceTerm[i] - sumOfTerms) / CoefficientMatrix[i * n + i];
-//		}
-//
-//	}
-//
-//	vector<double> resP;
-//	for (int i = 0; i < particles.size(); i++)
-//	{
-//		resP.push_back(particles[i].pressure);
-//	}
-//
-//	for (int i = 0; i < particleNumber + particleWallNum; i++)
-//	{
-//		vec3 secondTempU = middleUArray[i];
-//		vec3 secondTempP = middlePArray[i];
-//		if (i < particleNumber)
-//		{
-//			vec3 resGradient = mpsTool->OldGradient(middlePArray, resP, i, n0ForGradient);
-//
-//			secondTempU = (float)(-DELTA_TIME / FLUID_DENSITY) * resGradient + middleUArray[i];
-//			//secondTempP = middlePArray[i] + (float)0.5 * (middleUArray[i] + secondTempU) * (float)DELTA_TIME;
-//			//secondTempP = middlePArray[i] + secondTempU * (float)DELTA_TIME;
-//			secondTempP = middlePArray[i] + (secondTempU - middleUArray[i]) * (float)DELTA_TIME;
-//		}
-//
-//		particles[i].speed = secondTempU;
-//		particles[i].position = secondTempP;
-//
-//	}
-//
-//
-//
-//
-//
-//	// Wall和Fluid粒子的右端项（其中要排除对surface的计算）
-//	for (int i = 0; i < particleNumber + particleWallNum; i++)
-//	{
-//		float resRight = 0;
-//		//if (!ignoreArray[i])
-//		//{
-//
-//		//}
-//		resRight = mpsTool->OldImplicitLaplacianRight(FLUID_DENSITY, n0ForNumberDensity, particles[i].middleN);
-//		Right.push_back(resRight);
-//	}
-//
-//
-//
-//	// 解一个泊松方程
-//	//vector<double> resP = mpsTool->ImplicitCalculateP(middlePArray, n0ForLambda, ignoreArray, Right);
-//
-//	for (int i = 0; i < resP.size(); i++)
-//	{
-//		if (ignoreArray[i])
-//			resP[i] = 0;
-//	}
-//
-//
-//	for (int i = 0; i < particleNumber + particleWallNum; i++)
-//	{
-//		vec3 secondTempU = middleUArray[i];
-//		vec3 secondTempP = middlePArray[i];
-//		if (i < particleNumber)
-//		{
-//			vec3 resGradient = mpsTool->OldGradient(middlePArray, resP, i, n0ForGradient);
-//
-//			secondTempU = (float)(-DELTA_TIME / FLUID_DENSITY) * resGradient + middleUArray[i];
-//			//secondTempP = middlePArray[i] + (float)0.5 * (middleUArray[i] + secondTempU) * (float)DELTA_TIME;
-//			//secondTempP = middlePArray[i] + secondTempU * (float)DELTA_TIME;
-//			secondTempP = middlePArray[i] + (secondTempU - middleUArray[i]) * (float)DELTA_TIME;
-//		}
-//
-//		particles[i].speed = secondTempU;
-//		particles[i].position = secondTempP;
-//
-//	}
-//
-//	printf("sds");
-//
-//	//将计算好的位置点进行建模
-//	//Modeling();
-//	InitBufferData();
-//}
 
 void MPSWaterParticleGroup::Draw()
 {
@@ -1316,14 +780,14 @@ void MPSWaterParticleGroup::InitBufferData()
             if (ParticleType[i] == FLUID)
                 color = vec3(0, 0, 255);
             else
-                color = vec3(0);
-                //color = vec3(0, 255, 0);
+                //color = vec3(0);
+                color = vec3(0, 255, 0);
             break;
         case SURFACE_PARTICLE:
             if (ParticleType[i] == FLUID)
-                color = vec3(0, 0, 255);
+                color = vec3(255, 0, 0);
             else
-                color = vec3(0, 0, 0);
+                color = vec3(0, 255, 0);
             break;
         case GHOST_OR_DUMMY:
             color = vec3(0);

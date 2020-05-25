@@ -27,7 +27,7 @@
 
 
 constexpr unsigned int DIM								= 2;
-constexpr float PARTICLE_DISTANCE						= 0.025;
+constexpr float PARTICLE_DISTANCE						= 0.01;
 constexpr float DT										= 0.002;
 constexpr float OUTPUT_INTERVAL							= 20;
 
