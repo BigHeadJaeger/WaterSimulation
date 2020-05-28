@@ -7,8 +7,8 @@ void MyScene::Init()
 	//初始化glew
 	glewInit();
 	//初始化Renderer中的program
-	UE4Renderer::GetRenderer()->InitProgram("UE4ShaderFile.vert", "UE4ShaderFile.frag");
-	SimpleRenderer::GetRenderer()->InitProgram("SimpleShaderFile.vert", "SimpleShaderFile.frag");
+	//UE4Renderer::GetRenderer()->InitProgram("UE4ShaderFile.vert", "UE4ShaderFile.frag");
+	//SimpleRenderer::GetRenderer()->InitProgram("SimpleShaderFile.vert", "SimpleShaderFile.frag");
 	VCRenter::GetRenderer()->InitProgram("SF_VertexColor.vert", "SF_VertexColor.frag");
 
 	//pShadowTex.SetShader("shadowTex.v", "shadowTex.f");

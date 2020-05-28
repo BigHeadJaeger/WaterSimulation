@@ -24,7 +24,7 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(WIDTH, HEIGHT, "WaterSimulation", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();

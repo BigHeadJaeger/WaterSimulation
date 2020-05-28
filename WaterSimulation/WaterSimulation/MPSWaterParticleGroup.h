@@ -9,7 +9,7 @@
 #include"ParticleGroup.h"
 #include"MPSConst.h"
 
-//using namespace concurrency;.
+//using namespace concurrency;
 
 //MPS算法的水粒子群
 class MPSWaterParticleGroup :public ParticleGroup, public IModelingParticle
@@ -49,7 +49,7 @@ public:
 	MPSWaterParticleGroup()
 	{
 		particleNumber = 0;
-		l0 = PARTICLE_DISTANCE;
+		//l0 = PARTICLE_DISTANCE;
 		a = 0.75;
 
 		marchingCube = NULL;

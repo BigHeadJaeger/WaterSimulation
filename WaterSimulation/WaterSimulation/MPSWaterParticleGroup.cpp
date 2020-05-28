@@ -54,6 +54,10 @@ double collisionDistance, collisionDistance2;
 double FluidDensity;
 int N0Count;
 
+int timesCount = 0;
+
+int surfaceType = 0;
+
 
 void initializeParticlePositionAndVelocity_for2dim(void) {
 
@@ -65,6 +69,7 @@ void initializeParticlePositionAndVelocity_for2dim(void) {
 
     nX = (int)(1.0 / PARTICLE_DISTANCE) + 5;
     nY = (int)(0.6 / PARTICLE_DISTANCE) + 5;
+    int count1 = 0;
     for (iX = -4; iX < nX; iX++) {
         for (iY = -4; iY < nY; iY++) {
             x = PARTICLE_DISTANCE * (double)(iX);
@@ -91,7 +96,7 @@ void initializeParticlePositionAndVelocity_for2dim(void) {
                 flagOfParticleGeneration = OFF;
             }
 
-            if (((x > 0.0 + EPS) && (x <= 0.25 + EPS)) && ((y > 0.0 + EPS) && (y <= 0.30 + EPS))) {  /* fluid region */
+            if (((x > 0.0 + EPS) && (x <= 0.25 + EPS)) && ((y > 0.0 + EPS) && (y <= 0.40 + EPS))) {  /* fluid region */
                 ParticleType[i] = FLUID;
                 flagOfParticleGeneration = ON;
             }
@@ -104,6 +109,9 @@ void initializeParticlePositionAndVelocity_for2dim(void) {
     }
     NumberOfParticles = i;
     for (i = 0; i < NumberOfParticles; i++) { VelocityX[i] = 0.0; VelocityY[i] = 0.0; VelocityZ[i] = 0.0; }
+
+
+    //cout << count1 << endl;
 }
 
 void initializeParticlePositionAndVelocity_for3dim(void) {
@@ -418,33 +426,63 @@ void setBoundaryCondition(void) {
     for (int i = 0; i < NumberOfParticles; i++) {
         //int temp = ParticleType[i];
         float count = 0;
-        for (int j = 0; j < NumberOfParticles; j++)
+        if (surfaceType == 1)
         {
-            double distance, distance2;
-            double xij, yij, zij;
-            xij = PositionX[j] - PositionX[i];
-            yij = PositionY[j] - PositionY[i];
-            zij = PositionZ[j] - PositionZ[i];
-            distance2 = (xij * xij) + (yij * yij) + (zij * zij);
-            distance = sqrt(distance2);
-            if (distance < Re_forParticleNumberDensity)
-                count++;
+            for (int j = 0; j < NumberOfParticles; j++)
+            {
+                double distance, distance2;
+                double xij, yij, zij;
+                xij = PositionX[j] - PositionX[i];
+                yij = PositionY[j] - PositionY[i];
+                zij = PositionZ[j] - PositionZ[i];
+                distance2 = (xij * xij) + (yij * yij) + (zij * zij);
+                distance = sqrt(distance2);
+                if (distance < Re_forParticleNumberDensity)
+                    count++;
+            }
         }
+
+
 
 
         if (ParticleType[i] == GHOST || ParticleType[i] == DUMMY_WALL) {
             BoundaryCondition[i] = GHOST_OR_DUMMY;
         }
-        else if (count < 0.95 * N0Count) {
-            BoundaryCondition[i] = SURFACE_PARTICLE;
-            //ParticleType[i] = SURFACE;
-            //count < 0.95 * N0Count
-            //ParticleNumberDensity[i] < beta * n0
+        else
+        {
+            if (surfaceType == 1)
+            {
+                if (count < 0.95 * N0Count)
+                {
+                    BoundaryCondition[i] = SURFACE_PARTICLE;
+                    //ParticleType[i] = SURFACE;
+                    //count < 0.95 * N0Count
+                    //ParticleNumberDensity[i] < beta * n0
+                }
+                else
+                {
+                    //ParticleType[i] = temp;
+                    BoundaryCondition[i] = INNER_PARTICLE;
+                }
+            }
+            else
+            {
+                if (ParticleNumberDensity[i] < beta * n0)
+                {
+                    BoundaryCondition[i] = SURFACE_PARTICLE;
+                    //ParticleType[i] = SURFACE;
+                    //count < 0.95 * N0Count
+                    //ParticleNumberDensity[i] < beta * n0
+                }
+                else
+                {
+                    //ParticleType[i] = temp;
+                    BoundaryCondition[i] = INNER_PARTICLE;
+                }
+            }
+
         }
-        else {
-            //ParticleType[i] = temp;
-            BoundaryCondition[i] = INNER_PARTICLE;
-        }
+
     }
 }
 
@@ -474,6 +512,7 @@ void setMatrix(void) {
     double a;
     int n = NumberOfParticles;
 
+#pragma omp parallel for
     for (int i = 0; i < NumberOfParticles; i++) {
         for (int j = 0; j < NumberOfParticles; j++) {
             CoefficientMatrix[i * n + j] = 0.0;
@@ -502,7 +541,7 @@ void setMatrix(void) {
         }
         CoefficientMatrix[i * n + i] += (COMPRESSIBILITY) / (DT * DT);
     }
-    //exceptionalProcessingForBoundaryCondition();
+    exceptionalProcessingForBoundaryCondition();
 }
 
 void exceptionalProcessingForBoundaryCondition(void) {
@@ -603,8 +642,6 @@ void solveSimultaniousEquationsByGaussEliminationMethod(void) {
             sumOfTerms += CoefficientMatrix[i * n + j] * Pressure[j];
         }
         Pressure[i] = (SourceTerm[i] - sumOfTerms) / CoefficientMatrix[i * n + i];
-
-
     }
 
     //for (int i = 0; i < NumberOfParticles; i++)
@@ -618,23 +655,21 @@ void solveSimultaniousEquationsByGaussEliminationMethod(void) {
 }
 
 void removeNegativePressure(void) {
-    int i;
-
-    for (i = 0; i < NumberOfParticles; i++) {
+#pragma omp parallel for
+    for (int i = 0; i < NumberOfParticles; i++) {
         if (Pressure[i] < 0.0)Pressure[i] = 0.0;
     }
 }
 
 void setMinimumPressure(void) {
-    double xij, yij, zij, distance2;
-    int i, j;
-
-    for (i = 0; i < NumberOfParticles; i++) {
+#pragma omp parallel for
+    for (int i = 0; i < NumberOfParticles; i++) {
         if (ParticleType[i] == GHOST || ParticleType[i] == DUMMY_WALL)continue;
         MinimumPressure[i] = Pressure[i];
-        for (j = 0; j < NumberOfParticles; j++) {
+        for (int j = 0; j < NumberOfParticles; j++) {
             if ((j == i) || (ParticleType[j] == GHOST)) continue;
             if (ParticleType[j] == DUMMY_WALL) continue;
+            double xij, yij, zij, distance2;
             xij = PositionX[j] - PositionX[i];
             yij = PositionY[j] - PositionY[i];
             zij = PositionZ[j] - PositionZ[i];
@@ -648,27 +683,27 @@ void setMinimumPressure(void) {
 }
 
 void calculatePressureGradient(void) {
-    int    i, j;
-    double gradient_x, gradient_y, gradient_z;
-    double xij, yij, zij;
-    double distance, distance2;
-    double w, pij;
     double a;
 
     a = DIM / N0_forGradient;
-    for (i = 0; i < NumberOfParticles; i++) {
+#pragma omp parallel for
+    for (int i = 0; i < NumberOfParticles; i++) {
         if (ParticleType[i] != FLUID) continue;
+        double gradient_x, gradient_y, gradient_z;
         gradient_x = 0.0;  gradient_y = 0.0;  gradient_z = 0.0;
-        for (j = 0; j < NumberOfParticles; j++) {
+        for (int j = 0; j < NumberOfParticles; j++) {
             if (j == i) continue;
             if (ParticleType[j] == GHOST) continue;
             if (ParticleType[j] == DUMMY_WALL) continue;
+            double xij, yij, zij;
+            double distance, distance2;
             xij = PositionX[j] - PositionX[i];
             yij = PositionY[j] - PositionY[i];
             zij = PositionZ[j] - PositionZ[i];
             distance2 = (xij * xij) + (yij * yij) + (zij * zij);
             distance = sqrt(distance2);
             if (distance < Re_forGradient) {
+                double w, pij;
                 w = weight(distance, Re_forGradient);
                 pij = (Pressure[j] - MinimumPressure[i]) / distance2;
                 gradient_x += xij * pij * w;
@@ -706,7 +741,15 @@ void moveParticleUsingPressureGradient(void) {
 
 void MPSWaterParticleGroup::InitParticles()
 {
-    printf("\n*** START MPS-SIMULATION ***\n");
+    cout << "simulation start" << endl;
+
+    cout << "input 0 original method" << endl;
+    cout << "input 1 improve method" << endl;
+    cin >> surfaceType;
+    cout << "press W A S D key to move camera, hold right mouse button to rotate camera" << endl;
+
+    //surfaceType = 0;
+
     if (DIM == 2) {
         initializeParticlePositionAndVelocity_for2dim();
     }
@@ -729,10 +772,16 @@ void MPSWaterParticleGroup::InitParticles()
 void MPSWaterParticleGroup::Modeling()
 {
 	vector<vec3> posArray;
-	for (int i = 0; i < particles.size(); i++)
-	{
-		posArray.push_back(particles[i].position);
-	}
+	//for (int i = 0; i < particles.size(); i++)
+	//{
+	//	posArray.push_back(particles[i].position);
+	//}
+
+    for (int i = 0; i < NumberOfParticles; i++)
+    {
+        posArray.push_back(vec3(PositionX[i], PositionY[i], PositionZ[i]));
+    }
+    int pointCount = 0;
 
 	vector<float> verticesInfo;
 	bool provideNormal;
@@ -740,7 +789,13 @@ void MPSWaterParticleGroup::Modeling()
 	marchingCube = new MarchingCube();
 	marchingCube->GetMeshData(posArray, verticesInfo, provideNormal, provideTex);
 
-	shaderData->InitVertexBuffer(verticesInfo, provideNormal, provideTex);
+    //当ball运动都超出最开始的定的边界时就不会有顶点信息产生
+    if (verticesInfo.size() != 0)
+    {
+        pointCount = verticesInfo.size() / 8;		//每8个数据代表一个点的信息
+        shaderData->drawUnitNumber = pointCount;
+        shaderData->InitVertexBuffer(verticesInfo, provideNormal, provideTex);
+    }
 }
 
 void MPSWaterParticleGroup::Update(float dt)
@@ -758,18 +813,23 @@ void MPSWaterParticleGroup::Update(float dt)
     calculatePressureGradient();
     moveParticleUsingPressureGradient();
     InitBufferData();
+
+    timesCount++;
 }
 
 void MPSWaterParticleGroup::Draw()
 {
 	// GL_POINTS
 	shaderData->SetDrawType(GL_POINTS);
+    glPointSize(3);
 	renderer->Render(shaderData);
 }
 
 void MPSWaterParticleGroup::InitBufferData()
 {
 	vector<float> data;
+
+    bool first = true;
 
     for (int i = 0; i < NumberOfParticles; i++) 
     {
@@ -778,20 +838,20 @@ void MPSWaterParticleGroup::InitBufferData()
         {
         case INNER_PARTICLE:
             if (ParticleType[i] == FLUID)
-                color = vec3(0, 0, 255);
+                color = vec3(0, 0, 200);
             else
                 //color = vec3(0);
-                color = vec3(0, 255, 0);
+                color = vec3(100, 255, 0);
             break;
         case SURFACE_PARTICLE:
             if (ParticleType[i] == FLUID)
-                color = vec3(255, 0, 0);
+                color = vec3(0, 0, 200);
             else
                 color = vec3(0, 255, 0);
             break;
         case GHOST_OR_DUMMY:
-            color = vec3(0);
-            //color = vec3(0, 255, 255);
+            //color = vec3(0);
+            color = vec3(0, 255, 255);
             break;
         //case WALL:
         //    color = vec3(0, 255, 0);
@@ -799,6 +859,22 @@ void MPSWaterParticleGroup::InitBufferData()
         default:
             break;
         }
+
+       
+        //if (first)
+        //{
+        //    if (PositionX[i] > 0.1 && PositionX[i] < 0.11 && PositionY[i] < 0.05 && PositionY[i]>0.04)
+        //    {
+        //        color = vec3(145, 200, 50);
+        //        cout << Pressure[i] << endl;
+        //        first = false;
+        //    }
+        //}
+
+        //if (i == 270)
+        //{
+
+        //}
         data.push_back(PositionX[i]);
         data.push_back(PositionY[i]);
         data.push_back(PositionZ[i]);
@@ -807,36 +883,6 @@ void MPSWaterParticleGroup::InitBufferData()
         data.push_back(color.z);
     }
 
-
-	//for (int i = 0; i < particles.size(); i++)
-	//{
-	//	vec3 color = vec3(0);
-	//	switch (particles[i].particleType)
-	//	{
-	//	case FLUID:
-	//		color = vec3(0, 0, 255);
-	//		break;
-	//	case SURFACE:
-	//		color = vec3(255, 0, 0);
-	//		break;
-	//	case DUMMY:
-	//		color = vec3(0);
-	//		//color = vec3(0, 255, 255);
-	//		break;
-	//	case WALL:
-	//		color = vec3(0, 255, 0);
-	//		break;
-	//	default:
-	//		break;
-	//	}
-
-	//	data.push_back(particles[i].position.x);
-	//	data.push_back(particles[i].position.y);
-	//	data.push_back(particles[i].position.z);
-	//	data.push_back(color.x);
-	//	data.push_back(color.y);
-	//	data.push_back(color.z);
-	//}
 
 	shaderData->drawUnitNumber = data.size() / 6;
 	dynamic_cast<VCShaderData*>(shaderData)->InitVertexBuffer(data, GL_DYNAMIC_DRAW);

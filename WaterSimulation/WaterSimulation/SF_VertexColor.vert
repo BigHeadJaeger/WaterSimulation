@@ -9,8 +9,8 @@ uniform mat4 world;
 uniform mat4 worldViewProj;
 uniform mat4 worldInvTranspose;
 
-out vec3 posW;					//光照计算需要物体的世界坐标
-out vec3 colorW;					//光照计算需要物体的世界坐标
+out vec3 posW;					//片段着色器物体世界坐标
+out vec3 colorW;					//片段着色器物体顶点颜色
 
 void main()
 {
